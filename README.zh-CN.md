@@ -4,6 +4,7 @@
 
 [![status](https://img.shields.io/badge/status-design%20phase-yellow)](docs/research-proposal.md)
 [![license](https://img.shields.io/badge/license-MIT%20%2B%20CC--BY--4.0-blue)](LICENSE)
+[![使用 DeepSeek Harness 构建](https://img.shields.io/badge/%E4%BD%BF%E7%94%A8-DeepSeek%20Harness-4D6BFE?logo=deepseek&logoColor=white&style=flat-square)](#使用-deepseek-harness-构建)
 
 [English](README.md) | **简体中文**
 
@@ -107,6 +108,14 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 
 欢迎 Issue 与 PR，见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。当前最需要的是：基准任务 YAML、
 标定数据集、以及对评测协议的批评。
+
+## 使用 DeepSeek Harness 构建
+
+本仓库的研究方案、三张 SVG 图、硬件清单、标定与调度设计、评测协议，均在 **DeepSeek Harness（DSH）**
+智能体会话中起草：由智能体写作与迭代，由人类作者确定研究方向并逐条审阅。DSH 是 DeepSeek 的桌面端
+智能体框架，本仓库是该工作流产出的纯文档结果。
+
+上方的徽章只表示来源归属，复现这套装置不依赖 DSH。
 
 ## 引用
 

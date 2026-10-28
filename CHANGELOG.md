@@ -6,6 +6,9 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ## [Unreleased]
 
+### Added
+- "Built with DeepSeek Harness" badge and attribution section in `README.md` and `README.zh-CN.md`.
+
 ### Planned
 - `src/calib.py` — camera intrinsics, homography, tool offset, online re-calibration check
 - `src/servo.py` — HID visual servoing on the pointer sprite

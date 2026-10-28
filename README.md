@@ -6,6 +6,7 @@
 [![license](https://img.shields.io/badge/license-MIT%20%2B%20CC--BY--4.0-blue)](LICENSE)
 [![hardware](https://img.shields.io/badge/hardware-CERN--OHL--S-green)](docs/research-proposal.md)
 [![docs](https://img.shields.io/badge/docs-4%20documents-informational)](docs/)
+[![built with DeepSeek Harness](https://img.shields.io/badge/built%20with-DeepSeek%20Harness-4D6BFE?logo=deepseek&logoColor=white&style=flat-square)](#built-with-deepseek-harness)
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -116,6 +117,16 @@ any use that violates a platform's terms of service. See [`ETHICS.md`](ETHICS.md
 Issues and PRs are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md). The most useful early
 contributions are: task YAMLs for the benchmark, calibration datasets, and critique of the
 evaluation protocol.
+
+## Built with DeepSeek Harness
+
+The research proposal, the three SVG figures, the hardware BOM, the calibration/scheduler design
+and the evaluation protocol in this repository were drafted in a **DeepSeek Harness (DSH)** agent
+session: the agent wrote and iterated on the files, the human author set the research direction and
+reviewed every claim. DSH is DeepSeek's desktop agent harness; this repository is the
+documentation-only output of that workflow.
+
+The badge above is an attribution, not a runtime dependency — reproducing the rig does not require DSH.
 
 ## Citation
 
