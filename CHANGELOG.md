@@ -6,31 +6,8 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ## [Unreleased]
 
-### Added
-- **English versions of all four documents** — `docs/research-proposal.md`, `docs/evaluation-protocol.md`,
-  `docs/scheduler-and-calibration.md`, `docs/related-work.md`. The Chinese originals are kept as
-  `*.zh-CN.md`, and every document carries a `English | 简体中文` switcher line under its title.
-- "Built with DeepSeek Harness" badge and attribution section in `README.md` and `README.zh-CN.md`.
-- **English-labelled versions of all three figures** (`system-architecture.svg`, `three-views.svg`,
-  `roadmap-gantt.svg`), so the English README renders English diagrams. The Chinese-labelled
-  originals are kept as `*.zh-CN.svg` and used by `README.zh-CN.md`.
+Nothing yet. Planned for the next release — see the roadmap in [`README.md`](README.md):
 
-### Changed
-- `docs/*.md` renamed to `docs/*.zh-CN.md`; English is now the default language of `docs/`, matching
-  the convention already used for `docs/assets/`. All links in `README.zh-CN.md` updated.
-- `docs/assets/*.svg` renamed to `*.zh-CN.svg` for the Chinese variants; cross-links added in both
-  READMEs.
-- Repository made **public** (https://github.com/xiaowangkkk1231/embodied-gui-agent); CI status
-  badge added to both READMEs.
-- `CITATION.cff` placeholders filled (`xiaowang`, real `repository-code` / `license-url`); the
-  `preferred-citation` block is parked as a comment until the paper exists. `LICENSE` copyright filled.
-- New "Prior art & related projects" section in both READMEs; Tapster / FlexArm / iPhone-Ian / Tappy /
-  OptoFidelity and the robotic-testing literature added to `docs/related-work.md` §3.
-- Split `LICENSE` (pure MIT text) from `LICENSING.md` (per-directory map + third-party notices):
-  mixing them made GitHub report the license as `NOASSERTION` instead of MIT. References in
-  `README*`, `CONTRIBUTING.md` and the PR template updated.
-
-### Planned
 - `src/calib.py` — camera intrinsics, homography, tool offset, online re-calibration check
 - `src/servo.py` — HID visual servoing on the pointer sprite
 - `src/scheduler.py` — state machine, arbitration, post-action verification
@@ -41,22 +18,43 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ## [0.1.0] — 2026-10-28
 
+First public release: the **design and documentation package**. No runnable code yet.
+
 ### Added
+
+**Documents (bilingual — English default, Simplified Chinese as `*.zh-CN.*`)**
+
 - `docs/research-proposal.md` — RQ1–RQ5, four-layer system design, 60-task experiment plan,
   ablations A1–A4, risk register, expected contributions.
-- `docs/related-work.md` — five research threads (GUI agents, benchmarks, robotic UI testing,
-  input subsystem semantics, force/tactile sensing) and the gap statement.
-- `docs/scheduler-and-calibration.md` — state machine, action primitives, arbitration
-  pseudocode, homography / tool-offset / visual-servo implementation notes, safety limits.
-- `docs/evaluation-protocol.md` — task YAML template, run protocol, 13 metric definitions,
-  logging schema, statistical tests, baseline-fairness rules.
-- `docs/assets/system-architecture.svg` — four-layer architecture with signal flow and the
-  three coordinate systems.
-- `docs/assets/three-views.svg` — front/top elevation plus tap-head detail drawing.
-- `docs/assets/roadmap-gantt.svg` — 12-week plan with six milestones.
-- `hardware/BOM.csv` — 44 line items, ¥871 without tools.
-- `README.md`, `README.zh-CN.md`, `LICENSE`, `ETHICS.md`, `CONTRIBUTING.md`,
-  `CODE_OF_CONDUCT.md`, `CITATION.cff`, CI asset validator.
+- `docs/evaluation-protocol.md` — task YAML template, run protocol, 13 metric definitions, logging
+  schema, statistical tests (McNemar / paired bootstrap), baseline-fairness rules.
+- `docs/scheduler-and-calibration.md` — state machine, action primitives, arbitration pseudocode,
+  homography / tool-offset / visual-servo notes, safety limits.
+- `docs/related-work.md` — five research threads (GUI agents, benchmarks, robotic UI testing, input
+  subsystem semantics, force/tactile sensing), the gap statement, and open-source prior art
+  (Tapster, FlexArm, iPhone-Ian, Tappy, OptoFidelity TouchRobot).
+
+**Figures (SVG, English + `*.zh-CN` variants)**
+
+- `docs/assets/system-architecture.svg` — four-layer architecture with signal flow and the three
+  coordinate systems.
+- `docs/assets/three-views.svg` — front elevation, top view, tap-head detail, parts legend.
+- `docs/assets/roadmap-gantt.svg` — 12-week plan with milestones M1–M6.
+
+**Hardware and repository scaffolding**
+
+- `hardware/BOM.csv` — 44 line items, ¥871 without tools (¥1051 with tools).
+- `README.md` / `README.zh-CN.md`, `ETHICS.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`,
+  `CITATION.cff`, `LICENSING.md`, MIT `LICENSE`.
+- `scripts/check_assets.py` + GitHub Actions workflow: SVG well-formedness, CSV column shape,
+  relative-link existence, `CITATION.cff` required fields.
+- Issue templates (`bug_report`, `protocol_critique`) and a PR template with a mandatory ethics
+  statement.
 
 ### Notes
-- No runnable code yet: this release is documentation and design only.
+
+- This release is **documentation and design only**; `src/` contains interface contracts, not code.
+- Licensing is split: MIT for code, CC BY 4.0 for documents and figures, CERN-OHL-S v2 for hardware.
+  See [`LICENSING.md`](LICENSING.md).
+- Intended use is GUI-agent research, accessibility and automated mobile-app testing. Reward
+  farming, engagement fraud and anti-fraud evasion are explicitly out of scope — see [`ETHICS.md`](ETHICS.md).
