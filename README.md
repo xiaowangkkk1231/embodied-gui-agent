@@ -77,6 +77,8 @@ Physical layout and the tap-head detail:
 │  └─ README.md                     assembly notes and design constraints
 ├─ src/                             (planned) calibration, servo, scheduler, GRBL client
 ├─ scripts/check_assets.py          CI: SVG well-formedness, CSV shape, relative links
+├─ LICENSE / LICENSING.md           MIT text + per-directory map & third-party notices
+├─ CITATION.cff                     citation metadata ("Cite this repository")
 └─ .github/                         CI workflow, issue/PR templates
 ```
 
@@ -161,4 +163,5 @@ If you use the design or the evaluation protocol, cite it via [`CITATION.cff`](C
 - Documents and figures (`docs/`, `README*`): **CC BY 4.0**
 - Hardware designs (`hardware/`): **CERN-OHL-S v2**
 
-See [`LICENSE`](LICENSE) for the full text and the per-directory mapping.
+See [`LICENSE`](LICENSE) for the MIT text and [`LICENSING.md`](LICENSING.md) for the per-directory
+mapping and third-party notices.

@@ -21,6 +21,9 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   `preferred-citation` block is parked as a comment until the paper exists. `LICENSE` copyright filled.
 - New "Prior art & related projects" section in both READMEs; Tapster / FlexArm / iPhone-Ian / Tappy /
   OptoFidelity and the robotic-testing literature added to `docs/related-work.md` §3.
+- Split `LICENSE` (pure MIT text) from `LICENSING.md` (per-directory map + third-party notices):
+  mixing them made GitHub report the license as `NOASSERTION` instead of MIT. References in
+  `README*`, `CONTRIBUTING.md` and the PR template updated.
 
 ### Planned
 - `src/calib.py` — camera intrinsics, homography, tool offset, online re-calibration check

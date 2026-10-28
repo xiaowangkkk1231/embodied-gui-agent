@@ -21,7 +21,7 @@ value contributions right now are critique and data, not code volume.
 2. **No personal data** in commits: no phone numbers, notification bars, IMEI, real account
    screenshots. Use synthetic test screens.
 3. **No vendored third-party code** unless required; if you add a dependency, mention its
-   license in `LICENSE` → *Third-party notices*.
+   license in `LICENSING.md` → *Third-party notices*.
 4. **Assets are text**: prefer SVG over PNG for diagrams so diffs stay readable.
 
 ## Workflow

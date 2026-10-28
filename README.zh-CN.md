@@ -71,6 +71,8 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 │  └─ README.md                     装配说明与设计约束
 ├─ src/                             （待实现）标定、伺服、调度、GRBL 客户端
 ├─ scripts/check_assets.py          CI：SVG 合法性、CSV 列数、相对链接
+├─ LICENSE / LICENSING.md           MIT 文本 + 目录映射与第三方声明
+├─ CITATION.cff                     引用元数据（"Cite this repository"）
 └─ .github/                         CI 工作流、Issue/PR 模板
 ```
 
@@ -146,4 +148,4 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 - 文档与插图（`docs/`、`README*`）：**CC BY 4.0**
 - 硬件设计（`hardware/`）：**CERN-OHL-S v2**
 
-完整文本与目录对应关系见 [`LICENSE`](LICENSE)。
+完整 MIT 文本见 [`LICENSE`](LICENSE)，目录对应关系与第三方声明见 [`LICENSING.md`](LICENSING.md)。

@@ -14,7 +14,7 @@
 
 - [ ] `python scripts/check_assets.py` passes locally
 - [ ] No personal data in screenshots / logs (status bar, notifications, account names)
-- [ ] New third-party code or assets are listed in `LICENSE` → *Third-party notices*
+- [ ] New third-party code or assets are listed in `LICENSING.md` → *Third-party notices*
 - [ ] Units in code use `_mm` / `_ms` / `_px` suffixes
 - [ ] Diagrams are SVG (text, not PNG) so diffs stay reviewable
 
