@@ -8,6 +8,13 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 - "Built with DeepSeek Harness" badge and attribution section in `README.md` and `README.zh-CN.md`.
+- **English-labelled versions of all three figures** (`system-architecture.svg`, `three-views.svg`,
+  `roadmap-gantt.svg`), so the English README renders English diagrams. The Chinese-labelled
+  originals are kept as `*.zh-CN.svg` and used by `README.zh-CN.md`.
+
+### Changed
+- `docs/assets/*.svg` renamed to `*.zh-CN.svg` for the Chinese variants; cross-links added in both
+  READMEs.
 
 ### Planned
 - `src/calib.py` — camera intrinsics, homography, tool offset, online re-calibration check

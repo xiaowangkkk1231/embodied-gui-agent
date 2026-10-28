@@ -41,14 +41,17 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 
 ## 系统概览
 
-![系统架构](docs/assets/system-architecture.svg)
+![系统架构](docs/assets/system-architecture.zh-CN.svg)
 
 涉及三套坐标系（像素 → 机械毫米 → HID 相对位移）。HID 没有绝对坐标，用**屏幕上光标箭头的
 视觉伺服**闭环驱动。细节见 [`docs/scheduler-and-calibration.md`](docs/scheduler-and-calibration.md)。
 
 结构三视图与点击头细节：
 
-![三视图](docs/assets/three-views.svg)
+![三视图](docs/assets/three-views.zh-CN.svg)
+
+> 英文标注版本：[架构图](docs/assets/system-architecture.svg) ·
+> [三视图](docs/assets/three-views.svg) · [甘特图](docs/assets/roadmap-gantt.svg)。
 
 ## 目录结构
 
@@ -61,7 +64,7 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 │  ├─ related-work.md               五条脉络 + 空白点定位
 │  ├─ scheduler-and-calibration.md  状态机、仲裁、单应、视觉伺服
 │  ├─ evaluation-protocol.md        任务 YAML、13 项指标、日志 schema、统计
-│  └─ assets/                       架构图 · 三视图 · 甘特图（SVG）
+│  └─ assets/                       架构图 · 三视图 · 甘特图（英文 + .zh-CN 两套）
 ├─ hardware/
 │  ├─ BOM.csv                       44 项物料，约 ¥871（不含工具）
 │  └─ README.md                     装配说明与设计约束
@@ -85,7 +88,7 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 
 ## 路线图
 
-![甘特图](docs/assets/roadmap-gantt.svg)
+![甘特图](docs/assets/roadmap-gantt.zh-CN.svg)
 
 | 周 | 里程碑 |
 |---|---|

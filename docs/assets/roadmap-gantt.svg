@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="580" viewBox="0 0 1160 580" font-family="Microsoft YaHei, Segoe UI, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="580" viewBox="0 0 1160 580" font-family="Segoe UI, Arial, Helvetica, sans-serif">
   <rect width="1160" height="580" fill="#ffffff"/>
-  <text x="40" y="40" font-size="17" font-weight="700" fill="#111827">12 周研究计划 · 甘特图</text>
-  <text x="40" y="62" font-size="11" fill="#6b7280">关键路径 T2 → T3 → T5 → T6 ｜ 里程碑 M1–M6 ｜ 配套：01 研究方案书</text>
+  <text x="40" y="40" font-size="17" font-weight="700" fill="#111827">12-Week Research Roadmap</text>
+  <text x="40" y="62" font-size="11" fill="#6b7280">Critical path T2 → T3 → T5 → T6 | milestones M1-M6 | see docs/research-proposal.md</text>
 
-  <!-- 时间轴网格 -->
+  <!-- grid -->
   <g stroke="#e5e7eb" stroke-width="1">
     <line x1="360" y1="100" x2="360" y2="530"/>
     <line x1="421.6" y1="100" x2="421.6" y2="530"/>
@@ -21,7 +21,6 @@
   </g>
   <line x1="360" y1="126" x2="1099.2" y2="126" stroke="#9ca3af" stroke-width="1.2"/>
 
-  <!-- 周标题 -->
   <g font-size="10" fill="#4b5563" text-anchor="middle">
     <text x="390" y="118">W1</text><text x="452" y="118">W2</text><text x="514" y="118">W3</text>
     <text x="575" y="118">W4</text><text x="637" y="118">W5</text><text x="699" y="118">W6</text>
@@ -30,63 +29,63 @@
   </g>
 
   <!-- T1 -->
-  <text x="48" y="176" font-size="11" font-weight="700" fill="#111827">T1 基线与环境</text>
-  <text x="176" y="176" font-size="9" fill="#6b7280">B1/B2 跑通</text>
+  <text x="48" y="168" font-size="11" font-weight="700" fill="#111827">T1  Baselines &amp; environment</text>
+  <text x="48" y="182" font-size="8.2" fill="#6b7280">B1/B2 reproduced</text>
   <rect x="360" y="150" width="123" height="34" rx="4" fill="#bfdbfe" stroke="#2563eb"/>
-  <text x="421" y="172" font-size="9.5" text-anchor="middle" fill="#1e3a8a">基线成功率表</text>
+  <text x="421" y="172" font-size="9" text-anchor="middle" fill="#1e3a8a">baseline success table</text>
   <polygon points="483.2,166 492,172 483.2,178 474.4,172" fill="#1d4ed8"/>
   <text x="500" y="176" font-size="8.5" fill="#1d4ed8">M1</text>
 
   <!-- T2 -->
-  <text x="48" y="230" font-size="11" font-weight="700" fill="#111827">T2 机械平台与标定</text>
-  <text x="166" y="230" font-size="9" fill="#6b7280">装配 / 单应 / 偏置</text>
+  <text x="48" y="222" font-size="11" font-weight="700" fill="#111827">T2  Robot rig &amp; calibration</text>
+  <text x="48" y="236" font-size="8.2" fill="#6b7280">assembly · homography · offset</text>
   <rect x="421.6" y="204" width="246" height="34" rx="4" fill="#fde68a" stroke="#ca8a04"/>
-  <text x="544" y="226" font-size="9.5" text-anchor="middle" fill="#713f12">tap 精度 ±0.3mm ／ CalibErr ≤0.5mm</text>
+  <text x="544" y="226" font-size="9" text-anchor="middle" fill="#713f12">tap ±0.3 mm / CalibErr ≤0.5 mm</text>
   <polygon points="668,220 676.8,226 668,232 659.2,226" fill="#b45309"/>
   <text x="684" y="230" font-size="8.5" fill="#b45309">M2</text>
 
   <!-- T3 -->
-  <text x="48" y="284" font-size="11" font-weight="700" fill="#111827">T3 HID 通道 + 视觉伺服</text>
-  <text x="188" y="284" font-size="9" fill="#6b7280">键鼠 / 光标闭环</text>
+  <text x="48" y="276" font-size="11" font-weight="700" fill="#111827">T3  HID channel + visual servo</text>
+  <text x="48" y="290" font-size="8.2" fill="#6b7280">key-mouse · cursor loop</text>
   <rect x="544.8" y="258" width="185" height="34" rx="4" fill="#bbf7d0" stroke="#16a34a"/>
-  <text x="637" y="280" font-size="9.5" text-anchor="middle" fill="#14532d">视觉伺服 ≤3px 收敛</text>
+  <text x="637" y="280" font-size="9" text-anchor="middle" fill="#14532d">servo converges ≤3 px</text>
   <polygon points="729.6,274 738.4,280 729.6,286 720.8,280" fill="#15803d"/>
   <text x="746" y="284" font-size="8.5" fill="#15803d">M3</text>
 
   <!-- T4 -->
-  <text x="48" y="338" font-size="11" font-weight="700" fill="#111827">T4 感知与决策</text>
-  <text x="148" y="338" font-size="9" fill="#6b7280">VLM 定位 / 验证器</text>
+  <text x="48" y="330" font-size="11" font-weight="700" fill="#111827">T4  Perception &amp; decision</text>
+  <text x="48" y="344" font-size="8.2" fill="#6b7280">VLM grounding · verifier</text>
   <rect x="483.2" y="312" width="308" height="34" rx="4" fill="#e9d5ff" stroke="#7c3aed"/>
-  <text x="637" y="334" font-size="9.5" text-anchor="middle" fill="#4c1d95">元素 grounding + 动作后验证</text>
+  <text x="637" y="334" font-size="9" text-anchor="middle" fill="#4c1d95">element grounding + verification</text>
 
   <!-- T5 -->
-  <text x="48" y="392" font-size="11" font-weight="700" fill="#111827">T5 仲裁与闭环</text>
-  <text x="140" y="392" font-size="9" fill="#6b7280">分派策略 / 重试</text>
+  <text x="48" y="384" font-size="11" font-weight="700" fill="#111827">T5  Arbitration &amp; closed loop</text>
+  <text x="48" y="398" font-size="8.2" fill="#6b7280">dispatch · recovery</text>
   <rect x="729.6" y="366" width="185" height="34" rx="4" fill="#fed7aa" stroke="#ea580c"/>
-  <text x="822" y="388" font-size="9.5" text-anchor="middle" fill="#7c2d12">HID / 机械 分派 + 失败恢复</text>
+  <text x="822" y="388" font-size="9" text-anchor="middle" fill="#7c2d12">HID / robot dispatch</text>
   <polygon points="914.4,382 923.2,388 914.4,394 905.6,388" fill="#c2410c"/>
   <text x="930" y="392" font-size="8.5" fill="#c2410c">M4</text>
 
   <!-- T6 -->
-  <text x="48" y="446" font-size="11" font-weight="700" fill="#111827">T6 实验与消融</text>
-  <text x="148" y="446" font-size="9" fill="#6b7280">60 任务 × 5 组</text>
+  <text x="48" y="438" font-size="11" font-weight="700" fill="#111827">T6  Experiments &amp; ablations</text>
+  <text x="48" y="452" font-size="8.2" fill="#6b7280">60 tasks x 5 groups</text>
   <rect x="852.8" y="420" width="185" height="34" rx="4" fill="#fecaca" stroke="#dc2626"/>
-  <text x="945" y="442" font-size="9.5" text-anchor="middle" fill="#7f1d1d">主实验 + A1–A4 消融</text>
+  <text x="945" y="442" font-size="9" text-anchor="middle" fill="#7f1d1d">main run + A1-A4</text>
   <polygon points="1037.6,436 1046.4,442 1037.6,448 1028.8,442" fill="#b91c1c"/>
   <text x="1053" y="446" font-size="8.5" fill="#b91c1c">M5</text>
 
   <!-- T7 -->
-  <text x="48" y="500" font-size="11" font-weight="700" fill="#111827">T7 写作与复现包</text>
-  <text x="170" y="500" font-size="9" fill="#6b7280">论文 / 代码 / 数据</text>
+  <text x="48" y="492" font-size="11" font-weight="700" fill="#111827">T7  Writing &amp; repro package</text>
+  <text x="48" y="506" font-size="8.2" fill="#6b7280">paper · code · data</text>
   <rect x="976" y="474" width="123" height="34" rx="4" fill="#c7d2fe" stroke="#4f46e5"/>
-  <text x="1037" y="496" font-size="9.5" text-anchor="middle" fill="#312e81">论文初稿 + 复现包</text>
+  <text x="1037" y="496" font-size="9" text-anchor="middle" fill="#312e81">draft + repro pkg</text>
   <polygon points="1099.2,490 1105,496 1099.2,502 1093.4,496" fill="#4338ca"/>
   <text x="1080" y="516" font-size="8.5" fill="#4338ca">M6</text>
 
-  <!-- 图例 -->
+  <!-- legend -->
   <polygon points="48,552 56,558 48,564 40,558" fill="#374151"/>
-  <text x="66" y="562" font-size="9.5" fill="#4b5563">里程碑</text>
-  <rect x="126" y="550" width="16" height="16" rx="3" fill="#bfdbfe" stroke="#2563eb"/>
-  <text x="150" y="562" font-size="9.5" fill="#4b5563">工作包</text>
-  <text x="230" y="562" font-size="9.5" fill="#6b7280">注：T1 与 T4 可与 T2/T3 并行；若人力有限，先保 T2/T3/T5/T6 一条线</text>
+  <text x="66" y="562" font-size="9.5" fill="#4b5563">milestone</text>
+  <rect x="146" y="550" width="16" height="16" rx="3" fill="#bfdbfe" stroke="#2563eb"/>
+  <text x="170" y="562" font-size="9.5" fill="#4b5563">work package</text>
+  <text x="280" y="562" font-size="9.5" fill="#6b7280">T1 and T4 can run in parallel with T2/T3; if short on people, keep T2-T3-T5-T6 as the spine.</text>
 </svg>

@@ -56,6 +56,9 @@ Physical layout and the tap-head detail:
 
 ![Three views](docs/assets/three-views.svg)
 
+> Chinese-labelled versions of the figures: [architecture](docs/assets/system-architecture.zh-CN.svg) ·
+> [three views](docs/assets/three-views.zh-CN.svg) · [roadmap](docs/assets/roadmap-gantt.zh-CN.svg).
+
 ## Repository map
 
 ```
@@ -67,7 +70,7 @@ Physical layout and the tap-head detail:
 │  ├─ related-work.md               5 threads + gap statement
 │  ├─ scheduler-and-calibration.md  state machine, arbitration, homography, visual servo
 │  ├─ evaluation-protocol.md        task YAML, 13 metrics, log schema, statistics
-│  └─ assets/                       architecture · three views · roadmap (SVG)
+│  └─ assets/                       architecture · three views · roadmap  (EN + .zh-CN)
 ├─ hardware/
 │  ├─ BOM.csv                       44 line items, ~¥871 (≈US$120) without tools
 │  └─ README.md                     assembly notes and design constraints
