@@ -7,6 +7,7 @@
 [![hardware](https://img.shields.io/badge/hardware-CERN--OHL--S-green)](docs/research-proposal.md)
 [![docs](https://img.shields.io/badge/docs-4%20documents-informational)](docs/)
 [![built with DeepSeek Harness](https://img.shields.io/badge/built%20with-DeepSeek%20Harness-4D6BFE?logo=deepseek&logoColor=white&style=flat-square)](#built-with-deepseek-harness)
+[![assets](https://github.com/xiaowangkkk1231/embodied-gui-agent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/xiaowangkkk1231/embodied-gui-agent/actions/workflows/ci.yml)
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -105,6 +106,24 @@ Full list: [`hardware/BOM.csv`](hardware/BOM.csv).
 | W9–10 | 60-task benchmark × 5 groups |
 | W11 | Ablations A1–A4 + force classifier |
 | W12 | Paper draft + reproduction package |
+
+## Prior art & related projects
+
+Moving a stylus over a phone is not new — it has ten years of open-source and commercial history.
+The contribution here is *what gets measured*, not the fact that a stylus moves. Honest comparison:
+
+| Project | What it is | Overlap | Difference here |
+|---|---|---|---|
+| [Tapster](https://github.com/hugs/tapsterbot) (310★) | CoreXY gantry + capacitive stylus, Node.js + Arduino Firmata, taps a phone for app testing | Two-axis stylus rig, conductive tip, calibration | **Open-loop scripted**: no camera-in-the-loop agent, no force sensing, no HID arbitration |
+| [FlexArm](https://github.com/hamlet0168/FlexArm) (3★) | Robotic arm for real phones; camera corner-point calibration, YAML scripts, icon/text recognition | Vision calibration + scripted phone control — the closest shipped product | No force channel, no benchmark protocol; distributed as Windows binaries |
+| [iPhone-Ian](https://github.com/mchdeore/iPhone-Ian) | Physical robot tapping a stock iPhone, driven by a vision-based agent | Nearly the same problem statement | iPhone-only, minimal, no measurement layer |
+| [Tappy](https://github.com/robypez/ago) | TestDevLab's in-house Tapster derivative (2017) | Same as Tapster | Same as Tapster |
+| [OptoFidelity TouchRobot](https://optofidelity.com/en/touch-and-hmi-testing) | Commercial multi-axis touch/HMI test robot with force control | Physical touch **with** force control | Industrial test equipment for *device quality*, not a general-purpose agent actuator |
+| AppAgent / Mobile-Agent / AutoGLM | VLM agents driving phones purely through software injection | Task set, grounding methods | They never touch the device — they are the **baselines** here, not the competitors |
+
+The gap this repository targets: none of the physical rigs above close the loop with **contact
+force** *or* with a **VLM agent**, and none publishes a **comparable benchmark** across execution
+channels. See [`docs/related-work.md`](docs/related-work.md) for the literature side.
 
 ## Intended use / out of scope
 

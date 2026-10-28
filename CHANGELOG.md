@@ -15,6 +15,12 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 ### Changed
 - `docs/assets/*.svg` renamed to `*.zh-CN.svg` for the Chinese variants; cross-links added in both
   READMEs.
+- Repository made **public** (https://github.com/xiaowangkkk1231/embodied-gui-agent); CI status
+  badge added to both READMEs.
+- `CITATION.cff` placeholders filled (`xiaowang`, real `repository-code` / `license-url`); the
+  `preferred-citation` block is parked as a comment until the paper exists. `LICENSE` copyright filled.
+- New "Prior art & related projects" section in both READMEs; Tapster / FlexArm / iPhone-Ian / Tappy /
+  OptoFidelity and the robotic-testing literature added to `docs/related-work.md` §3.
 
 ### Planned
 - `src/calib.py` — camera intrinsics, homography, tool offset, online re-calibration check

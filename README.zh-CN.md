@@ -5,6 +5,7 @@
 [![status](https://img.shields.io/badge/status-design%20phase-yellow)](docs/research-proposal.md)
 [![license](https://img.shields.io/badge/license-MIT%20%2B%20CC--BY--4.0-blue)](LICENSE)
 [![使用 DeepSeek Harness 构建](https://img.shields.io/badge/%E4%BD%BF%E7%94%A8-DeepSeek%20Harness-4D6BFE?logo=deepseek&logoColor=white&style=flat-square)](#使用-deepseek-harness-构建)
+[![assets](https://github.com/xiaowangkkk1231/embodied-gui-agent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/xiaowangkkk1231/embodied-gui-agent/actions/workflows/ci.yml)
 
 [English](README.md) | **简体中文**
 
@@ -99,6 +100,21 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 | W9–10 | 60 任务基准 × 5 组对照 |
 | W11 | 消融 A1–A4 + 力判别器 |
 | W12 | 论文初稿 + 复现包 |
+
+## 已有项目与对比
+
+“机械臂点手机”不是新问题，开源与商业界已有近十年积累。本项目的贡献在于**测什么**，而不在于“有根笔在动”。
+
+| 项目 | 是什么 | 重叠点 | 本项目差异 |
+|---|---|---|---|
+| [Tapster](https://github.com/hugs/tapsterbot)（310★） | CoreXY 三轴 + 电容笔，Node.js + Arduino Firmata，点手机做 App 测试 | 两轴机械结构、导电触头、标定 | **开环脚本**：无相机闭环、无力反馈、无 HID 仲裁 |
+| [FlexArm](https://github.com/hamlet0168/FlexArm)（3★） | 机械臂操作真机；摄像头角点标定、YAML 脚本、图标/文字识别 | 视觉标定 + 脚本化操作，**最接近的成品** | 无力通道、无基准协议；以 Windows 二进制发布 |
+| [iPhone-Ian](https://github.com/mchdeore/iPhone-Ian) | 视觉智能体驱动的物理装置点击 iPhone | 问题陈述几乎相同 | 仅 iPhone、实现极简、无度量层 |
+| [Tappy](https://github.com/robypez/ago) | TestDevLab 内部的 Tapster 改版（2017） | 同 Tapster | 同 Tapster |
+| [OptoFidelity TouchRobot](https://optofidelity.com/en/touch-and-hmi-testing) | 商用手眼一体触控/HMI 测试机器人，带力控 | 物理触控**且**有力控 | 是测“设备质量”的工业设备，不是通用智能体的执行器 |
+| AppAgent / Mobile-Agent / AutoGLM | 纯软件注入驱动手机的 VLM 智能体 | 任务集、定位方法 | 完全不接触设备——它们是本文的**基线**，不是竞品 |
+
+空白点：上述机械装置没有一个把**接触力**接入闭环，也没有一个接上 **VLM 智能体**；更没有一个给出跨执行通道的可比基准。文献侧见 [`docs/related-work.md`](docs/related-work.md)。
 
 ## 适用范围 / 不适用范围
 

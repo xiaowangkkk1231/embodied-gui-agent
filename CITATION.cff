@@ -5,9 +5,9 @@ type: software
 version: 0.1.0
 date-released: 2026-10-28
 license: MIT
-license-url: "https://github.com/<your-org>/embodied-gui-agent/blob/main/LICENSE"
-repository-code: "https://github.com/<your-org>/embodied-gui-agent"
-url: "https://github.com/<your-org>/embodied-gui-agent"
+license-url: "https://github.com/xiaowangkkk1231/embodied-gui-agent/blob/main/LICENSE"
+repository-code: "https://github.com/xiaowangkkk1231/embodied-gui-agent"
+url: "https://github.com/xiaowangkkk1231/embodied-gui-agent"
 abstract: >-
   Design and evaluation protocol for an embodied GUI agent that operates a real smartphone
   through an XY robotic gantry with a conductive stylus, assisted by a Bluetooth/USB HID
@@ -23,15 +23,11 @@ keywords:
   - force feedback
   - Android input
 authors:
-  - family-names: "TODO"
-    given-names: "TODO"
-    orcid: "https://orcid.org/0000-0000-0000-0000"
-    website: "https://example.com"
-preferred-citation:
-  type: article
-  title: "TODO: paper title once published"
-  year: 2026
-  note: "Placeholder — replace with the published paper when available."
-  authors:
-    - family-names: "TODO"
-      given-names: "TODO"
+  - family-names: "xiaowang"
+    email: "87411347@qq.com"
+    affiliation: "Independent researcher"
+# TODO: add a `preferred-citation` entry for the paper once it is published, e.g.
+# preferred-citation:
+#   type: article
+#   title: "..."
+#   year: 2026
