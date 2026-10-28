@@ -1,0 +1,131 @@
+# Embodied GUI Agent
+
+**A vision + LLM agent that operates a real smartphone through a physical robotic arm — with force–vision closed-loop feedback.**
+
+[![status](https://img.shields.io/badge/status-design%20phase-yellow)](docs/research-proposal.md)
+[![license](https://img.shields.io/badge/license-MIT%20%2B%20CC--BY--4.0-blue)](LICENSE)
+[![hardware](https://img.shields.io/badge/hardware-CERN--OHL--S-green)](docs/research-proposal.md)
+[![docs](https://img.shields.io/badge/docs-4%20documents-informational)](docs/)
+
+**English** | [简体中文](README.zh-CN.md)
+
+> **Status: v0.1 — design & documentation phase.** This repository currently contains a
+> research proposal, system architecture, hardware BOM, calibration/scheduler design and an
+> evaluation protocol. Run-time code is **not** included yet — see the [roadmap](#roadmap).
+
+---
+
+## Why
+
+Mainstream mobile GUI agents (AppAgent, Mobile-Agent, AutoGLM, …) execute actions through
+**software injection**: ADB, the accessibility service, `uiautomator`. That path collapses in
+exactly the places that matter:
+
+| Failure mode | Example |
+|---|---|
+| Injection blocked | secure keyboards, payment sheets, game engines, DRM video players |
+| Semantics not equivalent | widgets that only accept `TOOL_TYPE_FINGER` ignore synthetic events |
+| Simulator ≠ device | success measured in an emulator does not transfer to real hardware |
+| No physical feedback | the agent cannot tell whether a tap was *accepted* by the system |
+
+This project studies the **embodied alternative**: a camera observes the screen, a VLM grounds
+UI elements, and a **physical stylus driven by an XY gantry** performs the touch — optionally
+assisted by a Bluetooth/USB **HID** channel for text, navigation and scrolling. On top of that we
+add a sensing channel no software agent has: **contact force**.
+
+## Research questions
+
+| ID | Question | Key metric |
+|---|---|---|
+| RQ1 | Does embodied execution expand the reachable task set? | success rate on touch-only UIs |
+| RQ2 | Can contact-force signals self-supervise "tap accepted / rejected"? | AUC ≥ 0.85, latency ≤ 100 ms |
+| RQ3 | What is the optimal HID ↔ robot arbitration policy? | latency–success Pareto front |
+| RQ4 | Can online self-calibration make one rig work across phone models? | error ≤ 0.5 mm, recal ≤ 10 min |
+| RQ5 | How many touch gestures can a single-point finger + HID cover? | gesture coverage matrix |
+
+## System at a glance
+
+![System architecture](docs/assets/system-architecture.svg)
+
+Three coordinate systems are involved (pixels → machine millimetres → HID relative displacement);
+the HID channel has no absolute coordinates, so it is driven by **visual servoing on the on-screen
+pointer sprite**. Details in [`docs/scheduler-and-calibration.md`](docs/scheduler-and-calibration.md).
+
+Physical layout and the tap-head detail:
+
+![Three views](docs/assets/three-views.svg)
+
+## Repository map
+
+```
+.
+├─ README.md                        this file
+├─ README.zh-CN.md                  Chinese overview
+├─ docs/
+│  ├─ research-proposal.md          RQs, system design, experiment plan, risks
+│  ├─ related-work.md               5 threads + gap statement
+│  ├─ scheduler-and-calibration.md  state machine, arbitration, homography, visual servo
+│  ├─ evaluation-protocol.md        task YAML, 13 metrics, log schema, statistics
+│  └─ assets/                       architecture · three views · roadmap (SVG)
+├─ hardware/
+│  ├─ BOM.csv                       44 line items, ~¥871 (≈US$120) without tools
+│  └─ README.md                     assembly notes and design constraints
+├─ src/                             (planned) calibration, servo, scheduler, GRBL client
+├─ scripts/check_assets.py          CI: SVG well-formedness, CSV shape, relative links
+└─ .github/                         CI workflow, issue/PR templates
+```
+
+## Hardware summary
+
+| Subsystem | Contents | Cost (CNY) |
+|---|---|---|
+| Mechanics | 2020 extrusion, 8 mm rods, GT2 belts, 2× NEMA17, printed parts | 446 |
+| Motion control | Arduino UNO + CNC Shield + GRBL, A4988, solenoid tap head | 172 |
+| HID channel | ESP32 (BLE HID / USB OTG) | 30 |
+| Force sensing | FSR402 ×2, HX711 load cell | 63 |
+| Vision | 1080p manual-focus camera, ring light, calibration target | 160 |
+| **Total (no tools)** | | **871** |
+
+Full list: [`hardware/BOM.csv`](hardware/BOM.csv).
+
+## Roadmap
+
+![Roadmap](docs/assets/roadmap-gantt.svg)
+
+| Weeks | Milestone |
+|---|---|
+| W1–2 | Baselines (ADB, accessibility) reproduced; baseline success table |
+| W3–4 | Rig assembled + calibrated; tap repeatability ±0.3 mm |
+| W5–6 | HID channel + visual servo converges to ≤3 px |
+| W7–8 | Arbitration + post-action verification + recovery |
+| W9–10 | 60-task benchmark × 5 groups |
+| W11 | Ablations A1–A4 + force classifier |
+| W12 | Paper draft + reproduction package |
+
+## Intended use / out of scope
+
+**Intended:** GUI-agent research, accessibility assistance, automated mobile app testing,
+hardware-in-the-loop evaluation, teaching mechatronics.
+
+**Out of scope — and not supported by this project:** driving reward/ad-revenue mechanisms of
+commercial apps (click farms, reward farming, engagement fraud), evading anti-fraud systems, or
+any use that violates a platform's terms of service. See [`ETHICS.md`](ETHICS.md).
+
+## Contributing
+
+Issues and PRs are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md). The most useful early
+contributions are: task YAMLs for the benchmark, calibration datasets, and critique of the
+evaluation protocol.
+
+## Citation
+
+If you use the design or the evaluation protocol, cite it via [`CITATION.cff`](CITATION.cff)
+(GitHub renders a "Cite this repository" button once the file is present).
+
+## License
+
+- Code (`src/`, `scripts/`): **MIT**
+- Documents and figures (`docs/`, `README*`): **CC BY 4.0**
+- Hardware designs (`hardware/`): **CERN-OHL-S v2**
+
+See [`LICENSE`](LICENSE) for the full text and the per-directory mapping.

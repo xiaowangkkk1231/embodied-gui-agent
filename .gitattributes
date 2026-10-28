@@ -1,0 +1,25 @@
+# Normalize line endings: LF in the repository on every platform.
+* text=auto eol=lf
+
+# Text formats we want diffable
+*.md    text eol=lf
+*.svg   text eol=lf
+*.csv   text eol=lf
+*.py    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
+*.cff   text eol=lf
+
+# Binary formats we may add later
+*.stl   binary
+*.step  binary
+*.png   binary
+*.jpg   binary
+*.pdf   binary
+
+# GitHub language statistics: documentation should not count as code
+docs/**       linguist-documentation
+hardware/**   linguist-documentation
+*.md          linguist-documentation
+*.svg         linguist-documentation

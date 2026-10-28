@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this design, the evaluation protocol or the dataset, please cite it as below."
+title: "Embodied GUI Agent: a physical robotic arm with force-vision feedback for real-device mobile GUI automation"
+type: software
+version: 0.1.0
+date-released: 2026-10-28
+license: MIT
+license-url: "https://github.com/<your-org>/embodied-gui-agent/blob/main/LICENSE"
+repository-code: "https://github.com/<your-org>/embodied-gui-agent"
+url: "https://github.com/<your-org>/embodied-gui-agent"
+abstract: >-
+  Design and evaluation protocol for an embodied GUI agent that operates a real smartphone
+  through an XY robotic gantry with a conductive stylus, assisted by a Bluetooth/USB HID
+  channel. The repository documents the hardware BOM, calibration pipeline (homography, tool
+  offset, visual servoing), the HID/robot arbitration policy, a force-based tap-acceptance
+  classifier, and a 60-task benchmark with five control groups.
+keywords:
+  - GUI agent
+  - embodied agent
+  - mobile automation
+  - robotic UI testing
+  - hardware-in-the-loop
+  - force feedback
+  - Android input
+authors:
+  - family-names: "TODO"
+    given-names: "TODO"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+    website: "https://example.com"
+preferred-citation:
+  type: article
+  title: "TODO: paper title once published"
+  year: 2026
+  note: "Placeholder — replace with the published paper when available."
+  authors:
+    - family-names: "TODO"
+      given-names: "TODO"

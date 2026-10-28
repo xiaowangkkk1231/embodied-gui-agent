@@ -1,0 +1,51 @@
+MIT License
+
+Copyright (c) 2026 <YOUR NAME / ORGANIZATION>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Per-directory licensing
+
+This repository mixes code, prose and hardware designs. The MIT text above
+applies to software. Other parts are licensed as follows:
+
+| Path | License | Notes |
+|---|---|---|
+| `src/`, `scripts/` | **MIT** | as above |
+| `docs/`, `README*.md`, `ETHICS.md`, `CONTRIBUTING.md` | **CC BY 4.0** | https://creativecommons.org/licenses/by/4.0/ |
+| `docs/assets/*.svg` | **CC BY 4.0** | figures, attribution required |
+| `hardware/` (BOM, future CAD) | **CERN-OHL-S v2** | https://ohwr.org/cern_ohl_s_v2.txt |
+
+If you reuse the hardware design, CERN-OHL-S v2 requires that modifications to
+the design files be shared under the same license. Using the design to build a
+rig for yourself is unrestricted.
+
+## Third-party notices
+
+The repository references, but does not bundle, the following projects. Their
+licenses apply when you install or copy them:
+
+- **GRBL** — GPL-3.0 (firmware for the Arduino UNO motion controller)
+- **Arduino core / ESP32 Arduino core** — LGPL-2.1 / Apache-2.0
+- **OpenCV** — Apache-2.0
+- **ESP32 BLE HID libraries** (e.g. `ESP32-BLE-Mouse`, `ESP32-BLE-Keyboard`) — MIT
+
+The MIT/CC-BY/CERN-OHL split above does not relicense any third-party code.
