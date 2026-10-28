@@ -82,6 +82,9 @@ Physical layout and the tap-head detail:
 └─ .github/                         CI workflow, issue/PR templates
 ```
 
+Every document under `docs/` ships in both languages — `foo.md` is English, `foo.zh-CN.md` is
+Simplified Chinese — and the figures follow the same rule.
+
 ## Hardware summary
 
 | Subsystem | Contents | Cost (CNY) |

@@ -7,12 +7,17 @@ the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 ## [Unreleased]
 
 ### Added
+- **English versions of all four documents** — `docs/research-proposal.md`, `docs/evaluation-protocol.md`,
+  `docs/scheduler-and-calibration.md`, `docs/related-work.md`. The Chinese originals are kept as
+  `*.zh-CN.md`, and every document carries a `English | 简体中文` switcher line under its title.
 - "Built with DeepSeek Harness" badge and attribution section in `README.md` and `README.zh-CN.md`.
 - **English-labelled versions of all three figures** (`system-architecture.svg`, `three-views.svg`,
   `roadmap-gantt.svg`), so the English README renders English diagrams. The Chinese-labelled
   originals are kept as `*.zh-CN.svg` and used by `README.zh-CN.md`.
 
 ### Changed
+- `docs/*.md` renamed to `docs/*.zh-CN.md`; English is now the default language of `docs/`, matching
+  the convention already used for `docs/assets/`. All links in `README.zh-CN.md` updated.
 - `docs/assets/*.svg` renamed to `*.zh-CN.svg` for the Chinese variants; cross-links added in both
   READMEs.
 - Repository made **public** (https://github.com/xiaowangkkk1231/embodied-gui-agent); CI status

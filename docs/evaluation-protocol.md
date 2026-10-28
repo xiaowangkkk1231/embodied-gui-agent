@@ -1,19 +1,21 @@
-# 评测协议与指标定义
+# Evaluation Protocol and Metric Definitions
 
-> 配套 01 方案书。目标：让"物理执行 vs 软件注入"的对比**可复现、可统计、可被第三方重跑**。
+> English | [简体中文](evaluation-protocol.zh-CN.md)
+
+> Companion to proposal 01. Objective: make the "physical execution vs. software injection" comparison **reproducible, statistically analyzable, and re-runnable by third parties**.
 
 ---
 
-## 1. 任务模板（YAML）
+## 1. Task Template (YAML)
 
 ```yaml
 id: C5-03
-category: C5_restricted      # C1_导航 C2_输入 C3_弹窗 C4_手势 C5_受限
-title: 在安全键盘中完成支付密码输入
-app: open_source_demo_app    # 只用自建/开源 App
+category: C5_restricted      # C1_navigation C2_input C3_dialog C4_gesture C5_restricted
+title: Enter the payment password in a secure keyboard
+app: open_source_demo_app    # self-built / open-source apps only
 initial_state:
   activity: PayActivity
-  reset: cold_start          # cold_start | warm | 指定 deep link
+  reset: cold_start          # cold_start | warm | specified deep link
 goal:
   assert:
     - type: text_present
@@ -23,102 +25,102 @@ goal:
   max_steps: 15
   timeout_s: 90
 randomization:
-  - list_order: shuffle      # 列表项顺序随机
-  - start_offset: random     # 起始滚动位置随机
-notes: 安全键盘屏蔽 ADB 与无障碍，物理执行为唯一通路
+  - list_order: shuffle      # list item order is randomized
+  - start_offset: random     # starting scroll position is randomized
+notes: The secure keyboard blocks ADB and accessibility; physical execution is the only available path
 ```
 
-## 2. 任务集（5 类 × 12 = 60）
+## 2. Task Suite (5 categories × 12 = 60)
 
-| 类别 | 任务示例（各 12 个） | 设计意图 |
+| Category | Task examples (12 each) | Design intent |
 |---|---|---|
-| **C1 导航** | 返回上一页、切换底部 Tab、进入二级列表、打开设置、关闭权限页 | 基础可控性，验证执行链路 |
-| **C2 输入** | 搜索框输入英文、输入数字、切换输入框、清空输入、提交表单 | HID 优势区 |
-| **C3 弹窗/中断** | 关闭插屏广告、处理网络错误重试、允许权限弹窗、处理升级提示 | 鲁棒性与恢复能力 |
-| **C4 手势** | 长按弹出菜单、拖拽排序、双指缩放地图、上滑下拉刷新、连续滚动 | 能力边界（预期部分失败） |
-| **C5 受限界面** | 安全键盘输入、只认触摸的自绘控件、DRM 播放控制、防截屏页面（截图会黑屏）、无障碍被禁用的页面 | **RQ1 核心：物理执行的价值证明** |
+| **C1 Navigation** | Go back one page, switch bottom Tab, enter a second-level list, open settings, dismiss a permission page | Basic controllability; validates the execution chain |
+| **C2 Input** | Type English in a search box, type digits, switch input fields, clear input, submit a form | HID advantage zone |
+| **C3 Dialog/Interruption** | Close an interstitial ad, handle network-error retry, allow a permission dialog, handle an upgrade prompt | Robustness and recovery capability |
+| **C4 Gesture** | Long-press to open a menu, drag to reorder, two-finger zoom on a map, swipe up/down to refresh, continuous scrolling | Capability boundary (partial failure expected) |
+| **C5 Restricted UI** | Secure keyboard input, self-drawn controls that only accept touch, DRM playback control, screenshot-blocked pages (screenshots come out black), pages with accessibility disabled | **Core of RQ1: proof of the value of physical execution** |
 
-> 每个任务都必须能被**自动断言**判定，否则不入集。
+> Every task must be decidable by **automated assertion**; otherwise it does not enter the suite.
 
-## 3. 运行协议
+## 3. Run Protocol
 
-| 项 | 规定 |
+| Item | Specification |
 |---|---|
-| 冷/热启动 | 每个任务前 `force-stop` + 清缓存，固定冷启动 |
-| 预热 | 每台设备开机后先跑 3 个不计分任务，稳定系统状态 |
-| 重复次数 | 每任务 **5 次**（二值指标），连续指标取 5 次均值 |
-| 随机化 | 任务顺序、列表顺序、起始滚动位置三者都随机，种子记录在案 |
-| 环境 | 固定光照（照度计读数）、固定电量区间（40–80%）、飞行模式 + 固定 WiFi、关闭自动亮度 |
-| 隔离 | 同一时段只跑一台设备，避免蓝牙/网络互相干扰 |
-| 人工介入 | 只允许在 ABORT 后可人工复位，介入行为记录为 `human_intervention=true` 并单独统计 |
-| 数据留存 | 截图、力信号原始序列、动作日志、视频（可选）全部落盘，保留 30 天 |
+| Cold/warm start | `force-stop` + clear cache before each task; cold start fixed |
+| Warm-up | After each device boots, run 3 unscored tasks first to stabilize the system state |
+| Repetitions | **5** per task (binary metrics); continuous metrics take the mean of the 5 |
+| Randomization | Task order, list order, and starting scroll position are all randomized; the seed is recorded |
+| Environment | Fixed illumination (lux-meter reading), fixed battery band (40–80%), airplane mode + fixed WiFi, auto-brightness off |
+| Isolation | Only one device runs at a time, to avoid Bluetooth/network interference |
+| Human intervention | Manual reset is allowed only after ABORT; the intervention is logged as `human_intervention=true` and counted separately |
+| Data retention | Screenshots, raw force-signal sequences, action logs, and video (optional) are all persisted for 30 days |
 
-**重跑成本**：单设备单组 60 任务 × 5 次 × 平均 45s ≈ 3.8 小时；5 组对照 ≈ 19 小时/轮。
+**Re-run cost**: single device, single group: 60 tasks × 5 runs × 45s average ≈ 3.8 hours; 5 groups ≈ 19 hours per round.
 
-## 4. 指标定义
+## 4. Metric Definitions
 
-| 指标 | 公式 / 口径 |
+| Metric | Formula / definition |
 |---|---|
-| **TSR**（任务成功率） | `通过断言次数 / 总运行次数`，二值，严格判定 |
-| 严格子集 TSR | 仅 C5 类，用于 RQ1 |
-| **Steps** | `动作数 / 成功任务数`（失败任务不计入，另列） |
-| **T_task** | 从首个 OBSERVE 到断言通过/超时的墙钟，中位数 + IQR |
-| **RetryRate** | `重试动作数 / 总动作数` |
-| **EffectorMix** | `hid_actions : mech_actions : injected_actions` 占比 |
-| **ForceAUC** | 力判别器在"点击被接收 / 未被接收"二分类上的 ROC-AUC |
-| ForceF1 / 判定延迟 | F1@0.5；从接触开始到输出判决的毫秒数 |
-| **CalibErr** | 标定点重投影 RMS（mm），每次开机测一次 |
-| **RecalTime** | 换机型后从开始到 CalibErr ≤ 0.5mm 的耗时（min） |
-| **CrossDeviceDrop** | `(TSR_机型A − TSR_机型B) / TSR_机型A`，测 2–3 台不同品牌/分辨率 |
-| 安全事件数 | 超力、越界、急停、屏幕压痕（目检）次数，**必须为 0** |
+| **TSR** (task success rate) | `assertion passes / total runs`, binary, strictly judged |
+| Strict-subset TSR | C5 only, used for RQ1 |
+| **Steps** | `actions / successful tasks` (failed tasks excluded, listed separately) |
+| **T_task** | Wall clock from the first OBSERVE to assertion pass/timeout, median + IQR |
+| **RetryRate** | `retry actions / total actions` |
+| **EffectorMix** | Share of `hid_actions : mech_actions : injected_actions` |
+| **ForceAUC** | ROC-AUC of the force classifier on the binary classification of "tap accepted / not accepted" |
+| ForceF1 / decision latency | F1@0.5; milliseconds from contact start to verdict output |
+| **CalibErr** | RMS reprojection error of calibration points (mm), measured once per boot |
+| **RecalTime** | Time from start to CalibErr ≤ 0.5mm after a model change (min) |
+| **CrossDeviceDrop** | `(TSR_deviceA − TSR_deviceB) / TSR_deviceA`, measured on 2–3 devices of different brands/resolutions |
+| Safety event count | Number of over-force, out-of-bounds, emergency-stop, and screen-indentation (visual inspection) events; **must be 0** |
 
-## 5. 统计方法
+## 5. Statistical Methods
 
-- 二值（成功/失败）：配对 **McNemar 检验**（同任务同随机种子），报告 p 值与效应量（odds ratio）。
-- 连续指标：任务级配对 bootstrap（10,000 次），报告 95% CI。
-- 多组比较：Holm–Bonferroni 校正，α = 0.05。
-- 报告规范：`mean ± std`（或中位数[IQR]），附 n，附失败归因分布。
+- Binary (success/failure): paired **McNemar test** (same task, same random seed); report the p value and the effect size (odds ratio).
+- Continuous metrics: task-level paired bootstrap (10,000 resamples); report the 95% CI.
+- Multi-group comparison: Holm–Bonferroni correction, α = 0.05.
+- Reporting convention: `mean ± std` (or median [IQR]), with n and the failure attribution distribution.
 
-## 6. 日志 Schema（每动作一行 CSV / JSONL）
+## 6. Log Schema (one row per action, CSV / JSONL)
 
-| 字段 | 类型 | 说明 |
+| Field | Type | Description |
 |---|---|---|
-| `run_id` | str | 一次运行的唯一 id（含种子） |
-| `task_id` | str | 对应任务模板 |
+| `run_id` | str | Unique id of one run (including the seed) |
+| `task_id` | str | Corresponding task template |
 | `group` | str | B1/B2/B3/B4/Ours |
-| `device` | str | 机型 + 系统版本 + 分辨率 |
-| `step` | int | 步序 |
-| `state` | str | 状态机状态 |
+| `device` | str | Model + OS version + resolution |
+| `step` | int | Step index |
+| `state` | str | State machine state |
 | `action_kind` | str | key/type/scroll/tap/long_press/swipe/drag |
 | `effector` | str | hid / mech / adb / a11y |
 | `target_bbox` | str | `x,y,w,h` |
-| `target_label` | str | 元素语义 |
-| `latency_ms` | int | 动作端到端耗时 |
-| `force_peak` | float | 牛顿（标定后） |
+| `target_label` | str | Element semantics |
+| `latency_ms` | int | End-to-end action latency |
+| `force_peak` | float | Newtons (after calibration) |
 | `force_impulse` | float | N·ms |
-| `contact_ms` | int | 接触时长 |
-| `verdict` | bool | 动作后验证结果 |
-| `fail_label` | str | 见 05 的归因表 |
-| `screenshot_before` | str | 文件路径 |
-| `screenshot_after` | str | 文件路径 |
-| `human_intervention` | bool | 是否人工介入 |
+| `contact_ms` | int | Contact duration |
+| `verdict` | bool | Post-action verification result |
+| `fail_label` | str | See the failure-attribution table in [`scheduler-and-calibration.md`](scheduler-and-calibration.md) |
+| `screenshot_before` | str | File path |
+| `screenshot_after` | str | File path |
+| `human_intervention` | bool | Whether manual intervention occurred |
 
-## 7. 基线公平性（必须遵守）
+## 7. Baseline Fairness (mandatory)
 
-1. **同一任务、同一随机种子、同一设备**下比较；
-2. 所有组使用**相同的 grounding 模型**（否则差异归因于决策而非执行）；
-3. 所有组的**决策预算相同**（相同步数上限、相同 VLM 调用次数）；
-4. 软件注入组使用官方 API（`adb shell input` / `AccessibilityService`），不用 hack；
-5. 报告**失败归因分布**而非只报 TSR——否则无法区分"执行不行"和"决策不行"。
+1. Compare under **the same task, the same random seed, and the same device**;
+2. All groups use the **same grounding model** (otherwise differences are attributed to decision rather than execution);
+3. All groups get the **same decision budget** (same step limit, same number of VLM calls);
+4. The software injection group uses official APIs (`adb shell input` / `AccessibilityService`), no hacks;
+5. Report the **failure attribution distribution**, not just TSR — otherwise "execution is inadequate" and "decision-making is inadequate" cannot be distinguished.
 
-## 8. 预期结果形态（用于判断实验是否正常）
+## 8. Expected Result Shape (used to judge whether the experiment is normal)
 
-| 假设 | 预期 |
+| Hypothesis | Expectation |
 |---|---|
-| H1（RQ1） | C5 类上，Ours 显著 > B1/B2（例如 70% vs 10%），其他类别差距小 |
-| H2（RQ2） | 力判别 AUC ≥ 0.85，判定延迟 ≤ 100ms，比截图验证快 3–10 倍 |
-| H3（RQ3） | 阈值仲裁比固定机械策略耗时低 20–35%，TSR 下降 < 3% |
-| H4（RQ4） | 跨机型 TSR 降幅 < 10%，重标定 ≤ 10min |
-| H5（RQ5） | 手势覆盖约 60–70%，C4 类 TSR 明显低于其他类（预期 30–50%） |
+| H1 (RQ1) | On C5, Ours significantly > B1/B2 (e.g., 70% vs 10%), with small gaps on the other categories |
+| H2 (RQ2) | Force-classification AUC ≥ 0.85, decision latency ≤ 100ms, 3–10× faster than screenshot verification |
+| H3 (RQ3) | Threshold arbitration takes 20–35% less time than a fixed mechanical policy, with a TSR drop < 3% |
+| H4 (RQ4) | Cross-device TSR drop < 10%, recalibration ≤ 10min |
+| H5 (RQ5) | Gesture coverage is about 60–70%, and C4 TSR is clearly lower than the other categories (expected 30–50%) |
 
-若 H1 不成立（物理执行没有优势），这本身也是一个有意义的负结果——说明瓶颈在决策层，应转向 grounding 研究。
+If H1 does not hold (physical execution offers no advantage), this is itself a meaningful negative result — it indicates that the bottleneck lies in the decision layer, and the work should turn toward grounding research.

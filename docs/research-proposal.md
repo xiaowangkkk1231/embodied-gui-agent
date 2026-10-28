@@ -1,199 +1,203 @@
-# 具身 GUI 智能体：面向真机的物理机械臂执行与力-视觉闭环
+# Embodied GUI Agent: Physical Robotic-Arm Execution and Force-Vision Closed Loop for Real Devices
 
-> 研究方案书 v1.0 ｜ 2026-10-28 ｜ 配套文件：02 系统架构图 / 03 甘特图 / 04 BOM / 05 调度器与标定 / 06 评测协议 / 07 相关工作
+> English | [简体中文](research-proposal.zh-CN.md)
 
----
-
-## 0. 摘要
-
-现有手机 GUI Agent（AppAgent、Mobile-Agent、AutoGLM 等）几乎全部通过软件注入（ADB / 无障碍服务 / uiautomator）执行动作。这类方案在安全键盘、支付页、DRM 视频、只接受真实触摸的控件上直接失效，且无法在模拟器之外验证真机可用性。
-
-本方案研究**具身执行**：以"视觉感知 + 大模型决策 + 物理机械臂执行 + HID 通道辅助"构成的真机在环（hardware-in-the-loop）系统，并引入**接触力信号**作为软件 Agent 不具备的反馈通道。核心主张是：
-
-1. **可执行性扩展**：物理执行能覆盖软件注入失效的界面类别；
-2. **力-视觉闭环**：接触力时域特征可自监督地判定"点击是否被系统接收"，准确率与延迟优于纯视觉判定；
-3. **执行器仲裁**：在延迟与成功率双目标下，HID 与机械臂的最优分派策略可被量化并获得显著增益；
-4. **在线自标定**：使同一装置跨机型复用，重标定成本从小时级降到分钟级。
-
-预期产出：一套可复现的评测协议与任务集、一个开源硬件平台设计、若干可发表的实验结论。
+> Research proposal v1.0 ｜ 2026-10-28 ｜ Companion files: [system architecture](assets/system-architecture.svg) · [roadmap](assets/roadmap-gantt.svg) · [BOM](../hardware/BOM.csv) · [scheduler & calibration](scheduler-and-calibration.md) · [evaluation protocol](evaluation-protocol.md) · [related work](related-work.md)
 
 ---
 
-## 1. 背景与动机
+## 0. Abstract
 
-### 1.1 现有 GUI Agent 的执行瓶颈
+Existing mobile GUI Agents (AppAgent, Mobile-Agent, AutoGLM, etc.) almost all execute actions through software injection (ADB / accessibility service / uiautomator). Such approaches fail outright on secure keyboards, payment pages, DRM video, and controls that only accept real touch, and they cannot verify real-device usability outside an emulator.
 
-| 瓶颈 | 表现 | 影响 |
+This proposal studies **embodied execution**: a real-device-in-the-loop (hardware-in-the-loop) system composed of "visual perception + large-model decision making + physical robotic-arm execution + HID channel assistance", and it introduces **contact force signals** as a feedback channel that software Agents do not have. The core claims are:
+
+1. **Executability extension**: physical execution can cover the interface categories where software injection fails;
+2. **Force-vision closed loop**: time-domain contact force features can self-supervisedly determine "whether a tap is accepted by the system", with better accuracy and latency than pure visual judgment;
+3. **Effector arbitration**: under the dual objectives of latency and success rate, the optimal dispatch policy between HID and the robotic arm can be quantified and yields significant gains;
+4. **Online self-calibration**: enables reuse of the same rig across device models, reducing recalibration cost from hours to minutes.
+
+Expected outputs: a reproducible evaluation protocol and task suite, an open-source hardware platform design, and several publishable experimental conclusions.
+
+---
+
+## 1. Background and motivation
+
+### 1.1 Execution bottlenecks of existing GUI Agents
+
+| Bottleneck | Manifestation | Impact |
 |---|---|---|
-| 注入通道被屏蔽 | 安全键盘、支付页、游戏、DRM 播放器不响应 `adb input` / 无障碍 | 任务永久失败，无法绕过 |
-| 语义不等价 | 注入事件无 `TOOL_TYPE_FINGER`、无压力/面积 | 只认触摸的控件直接忽略 |
-| 真机不可复现 | 沙箱/模拟器成功率高，真机显著下降 | 研究结论外部效度差 |
-| 缺乏物理反馈 | Agent 只能"看"结果，无法感知"按没按上" | 失败检测依赖昂贵视觉 |
+| Injection channel blocked | Secure keyboards, payment pages, games, and DRM players do not respond to `adb input` / accessibility | The task fails permanently and cannot be bypassed |
+| Semantic non-equivalence | Injected events lack `TOOL_TYPE_FINGER` and carry no pressure/area | Controls that only recognize touch ignore them outright |
+| Not reproducible on real devices | High success rate in sandbox/emulator, significantly lower on real devices | Poor external validity of research conclusions |
+| No physical feedback | The Agent can only "see" the result and cannot sense "whether the tap landed" | Failure detection relies on expensive vision |
 
-### 1.2 为什么"具身"值得研究
+### 1.2 Why "embodied" is worth studying
 
-- **唯一通路**：部分界面在软件层不可达，物理触碰是唯一合法输入；
-- **新感知模态**：接触力、接触时序是软件通道不存在的信息；
-- **可复现平台**：真机在环评测基座，可服务 GUI Agent、无障碍、App 测试三类研究；
-- **工程价值**：手机厂商/App 厂商的"机器人化 UI 测试"已有工业需求（如 OptoFidelity TouchRobot、开源 Tapster）。
+- **Only pathway**: some interfaces are unreachable at the software layer, and physical touch is the only legitimate input;
+- **New sensing modality**: contact force and contact timing are information that the software channel does not have;
+- **Reproducible platform**: a real-device-in-the-loop evaluation base that can serve three lines of research: GUI Agents, accessibility, and App testing;
+- **Engineering value**: "robotized UI testing" by phone vendors/App vendors already has industrial demand (e.g., OptoFidelity TouchRobot, open-source Tapster).
 
-### 1.3 本文档的合规边界
+### 1.3 Compliance boundaries of this document
 
-本研究以**自建测试 App、开源应用、厂商测试机**为实验对象；不针对任何商业应用的收益/奖励机制设计实验；不采集真实用户数据；机械臂限力保护屏幕。技术相同、目标不同，性质完全不同。
+This study uses **self-built test Apps, open-source applications, and vendor test devices** as experimental subjects; it does not design experiments against the revenue/reward mechanisms of any commercial application; it does not collect real user data; the robotic arm limits force to protect the screen. The technology is the same, the objectives differ, and the nature is entirely different.
 
 ---
 
-## 2. 研究问题
+## 2. Research questions
 
-| 编号 | 问题 | 假设 | 度量 |
+| ID | Question | Hypothesis | Metric |
 |---|---|---|---|
-| **RQ1** | 具身执行是否扩展 GUI Agent 的可达任务集？ | 在"仅触摸可用"类别上，物理执行成功率显著高于软件注入 | TSR 差值、失败原因分布 |
-| **RQ2** | 接触力能否自监督判定点击是否被接收？ | 力时域特征（峰值、冲量、回弹时间）可区分"有效点击/无效点击" | AUC、F1、判定延迟 |
-| **RQ3** | HID 与机械臂的最优分派策略是什么？ | 按动作类别分派比固定分派在"时间-成功率"上更优 | 帕累托前沿、平均任务耗时 |
-| **RQ4** | 在线自标定能否支撑跨机型复用？ | 自动重标定可将误差控制在 ±0.5mm、耗时 < 10min | 标定误差、重标定时间、跨机型 TSR 降幅 |
-| **RQ5** | 单指机械 + HID 能覆盖多少种触摸手势？ | 覆盖约 60–70%，缺口可借 HID 键鼠与轨迹规划近似 | 手势覆盖矩阵、近似成功率 |
+| **RQ1** | Does embodied execution expand the reachable task suite of GUI Agents? | On the "touch-only" category, physical execution achieves a significantly higher success rate than software injection | TSR difference, distribution of failure reasons |
+| **RQ2** | Can contact force self-supervisedly determine whether a tap is accepted? | Force time-domain features (peak, impulse, rebound time) separate "valid tap/invalid tap" | AUC, F1, decision latency |
+| **RQ3** | What is the optimal dispatch policy between HID and the robotic arm? | Dispatching by action category outperforms fixed dispatch on "time-success rate" | Pareto frontier, mean task duration |
+| **RQ4** | Can online self-calibration support cross-model reuse? | Automatic recalibration can hold the error within ±0.5mm at a cost of < 10min | Calibration error, recalibration time, cross-model TSR drop |
+| **RQ5** | How many touch gestures can single-finger mechanical execution + HID cover? | Covers about 60–70%, and the gap can be approximated with HID keyboard/mouse and trajectory planning | Gesture coverage matrix, approximation success rate |
 
 ---
 
-## 3. 系统设计
+## 3. System design
 
-见 `02-系统架构.svg`。四层结构：
+See [`assets/system-architecture.svg`](assets/system-architecture.svg). Four-layer structure:
 
-### 3.1 感知层
-- **视觉**：USB 摄像头俯拍手机屏幕（1080p、手动对焦、固定补光），帧率 ≥ 15fps；
-- **屏幕理解**：截图 → OCR/VLM grounding（输出元素框与语义标签）→ 坐标映射；
-- **力觉**：FSR 薄膜压力片或微型称重传感器装在触头后方，采样 ≥ 200Hz，原始 ADC 序列；
-- **状态量**：光标位置（视觉检测鼠标箭头）、机械轴位置（GRBL 状态）、连接状态（BLE 心跳）。
+### 3.1 Perception layer
+- **Vision**: a USB camera looks down at the phone screen (1080p, manual focus, fixed fill light), frame rate ≥ 15fps;
+- **Screen understanding**: screenshot → OCR/VLM grounding (outputs element boxes and semantic labels) → coordinate mapping;
+- **Force sensing**: an FSR thin-film pressure sensor or a miniature load cell is mounted behind the tap head, sampling ≥ 200Hz, raw ADC sequence;
+- **State variables**: cursor position (visual detection of the mouse arrow), axis position (GRBL status), connection status (BLE heartbeat).
 
-### 3.2 决策层
-- **规划器**：LLM 负责把任务分解为子目标序列；
-- **Grounding**：VLM/OCR 把子目标解析为屏幕坐标与元素类型；
-- **验证器**：动作后截图比对（结构相似度 + 关键元素存在性），产出 success/fail；
-- **记忆**：页面栈、已试动作、失败原因，用于重试与回退。
+### 3.2 Decision layer
+- **Planner**: the LLM decomposes the task into a sequence of subgoals;
+- **Grounding**: VLM/OCR resolves subgoals into screen coordinates and element types;
+- **Verifier**: post-action screenshot comparison (structural similarity + presence of key elements) yields success/fail;
+- **Memory**: page stack, attempted actions, failure reasons, used for retry and rollback.
 
-### 3.3 执行层（动作原语 + 仲裁）
+### 3.3 Execution layer (action primitives + arbitration)
 
-| 原语 | 首选执行器 | 备选 |
+| Primitive | Preferred effector | Alternative |
 |---|---|---|
-| `key(code)` 返回/Home/切页 | HID 键盘 | — |
-| `scroll(dy)` | HID 滚轮 | 机械拖拽（低效） |
-| `type(text)` | HID 键盘 | — |
-| `tap(x,y)` | 机械触头 | HID 视觉伺服（若目标接受鼠标） |
-| `long_press(x,y,ms)` | 机械触头 | HID 按住 |
-| `swipe(points)` | HID 拖拽 / 机械轨迹 | — |
-| `multi_touch` | 不支持（覆盖缺口） | 声明限制 |
+| `key(code)` back/Home/switch page | HID keyboard | — |
+| `scroll(dy)` | HID scroll wheel | mechanical drag (inefficient) |
+| `type(text)` | HID keyboard | — |
+| `tap(x,y)` | mechanical tap head | HID visual servoing (if the target accepts a mouse) |
+| `long_press(x,y,ms)` | mechanical tap head | HID hold |
+| `swipe(points)` | HID drag / mechanical trajectory | — |
+| `multi_touch` | not supported (coverage gap) | declared limitation |
 
-仲裁器输入：动作类型、目标元素属性（是否响应鼠标）、当前延迟预算、上一次执行器成功率 → 输出执行器与参数。
+Arbiter inputs: action type, target element properties (whether it responds to a mouse), current latency budget, success rate of the previous effector → outputs the effector and parameters.
 
-### 3.4 反馈层：力-视觉闭环
-- 点击瞬间采集力信号窗口 [t-50ms, t+150ms]；
-- 特征：峰值力、上升沿斜率、冲量、回弹时间、接触时长、二次冲击；
-- 标签来源：截图验证结果（自动标注）+ 人工抽检；
-- 目标：AUC ≥ 0.85，判定延迟 ≤ 100ms，从而在不截图的情况下快速判失败并重试。
+### 3.4 Feedback layer: force-vision closed loop
+- At the instant of the tap, capture a force signal window [t-50ms, t+150ms];
+- Features: peak force, rising-edge slope, impulse, rebound time, contact duration, secondary impact;
+- Label source: screenshot verification results (automatic labeling) + manual spot-checking;
+- Target: AUC ≥ 0.85 and decision latency ≤ 100ms, so that failures can be detected quickly and retried without taking a screenshot.
 
 ---
 
-## 4. 实验设计
+## 4. Experimental design
 
-### 4.1 任务集（5 类 × 12 任务 = 60 任务）
+### 4.1 Task suite (5 categories × 12 tasks = 60 tasks)
 
-| 类别 | 示例 | 设计意图 |
+| Category | Example | Design intent |
 |---|---|---|
-| C1 导航 | 返回、切换标签、进二级页 | 基础可控性 |
-| C2 输入 | 搜索框输入、表单填写 | HID 优势项 |
-| C3 弹窗/中断 | 权限弹窗、广告插屏、网络错误重试 | 鲁棒性 |
-| C4 手势 | 长按菜单、拖拽排序、双指缩放 | 覆盖缺口 |
-| C5 受限界面 | 安全键盘、只认触摸控件、DRM 播放页 | **RQ1 核心** |
+| C1 Navigation | back, switch tab, enter a second-level page | basic controllability |
+| C2 Input | search-box entry, form filling | where HID has the advantage |
+| C3 Popups/interruptions | permission dialog, interstitial ad, network-error retry | robustness |
+| C4 Gestures | long-press menu, drag-to-reorder, two-finger zoom | coverage gap |
+| C5 Restricted interfaces | secure keyboard, touch-only controls, DRM playback page | **RQ1 core** |
 
-每个任务给出：初始状态、成功判据（结构化断言）、最长步数、随机化项（列表顺序、起始页面）。
+Each task specifies: initial state, success criterion (structured assertions), maximum step count, and randomization items (list order, starting page).
 
-### 4.2 对照组
+### 4.2 Control groups
 
-| 组 | 执行方式 | 目的 |
+| Group | Execution method | Purpose |
 |---|---|---|
-| B1 | ADB `input tap/swipe` | 工业基线 |
-| B2 | 无障碍服务注入 | 主流 Agent 基线 |
-| B3 | 纯 HID | 低成本外设基线 |
-| B4 | 纯机械（无视觉伺服） | 机械基线 |
-| **Ours** | 混合 + 力反馈 + 仲裁 | 主方法 |
+| B1 | ADB `input tap/swipe` | industrial baseline |
+| B2 | accessibility service injection | mainstream Agent baseline |
+| B3 | pure HID | low-cost peripheral baseline |
+| B4 | pure mechanical (no visual servoing) | mechanical baseline |
+| **Ours** | hybrid + force feedback + arbitration | main method |
 
-### 4.3 指标
+### 4.3 Metrics
 
-| 指标 | 定义 |
+| Metric | Definition |
 |---|---|
-| **TSR** | 任务成功率（严格断言通过） |
-| Steps | 平均动作步数 |
-| T_task | 平均墙钟耗时 |
-| RetryRate | 重试次数 / 动作数 |
-| EffectorMix | 各执行器动作占比 |
-| ForceAUC / F1 | 力判别器性能 |
-| CalibErr | 标定点重投影误差（mm） |
-| RecalTime | 换机型后重标定耗时（min） |
-| CrossDeviceDrop | 跨机型 TSR 相对降幅 |
+| **TSR** | task success rate (strict assertions passed) |
+| Steps | mean number of action steps |
+| T_task | mean wall-clock duration |
+| RetryRate | retries / number of actions |
+| EffectorMix | share of actions per effector |
+| ForceAUC / F1 | force classifier performance |
+| CalibErr | reprojection error of calibration points (mm) |
+| RecalTime | recalibration time after a device-model change (min) |
+| CrossDeviceDrop | relative TSR drop across device models |
 
-### 4.4 消融
+### 4.4 Ablation
 
-- A1：去掉力反馈（仅视觉验证）；
-- A2：去掉视觉伺服（HID 用固定步长盲移）；
-- A3：固定仲裁 vs 阈值仲裁 vs 学习仲裁；
-- A4：仅离线标定 vs 在线自标定。
+- A1: remove force feedback (visual verification only);
+- A2: remove visual servoing (HID moves blindly with a fixed step size);
+- A3: fixed arbitration vs threshold arbitration vs learned arbitration;
+- A4: offline calibration only vs online self-calibration.
 
-### 4.5 统计
+### 4.5 Statistics
 
-- 每任务重复 5 次，报告 mean ± std；
-- 二值结果用 McNemar 检验（配对），连续指标用 bootstrap 95% CI；
-- 显著性阈值 α = 0.05，报告效应量；
-- 随机化任务顺序与起始状态，盲评（验证器自动断言）。
+- Repeat each task 5 times and report mean ± std;
+- Use McNemar's test (paired) for binary outcomes and bootstrap 95% CI for continuous metrics;
+- Significance threshold α = 0.05; report effect sizes;
+- Randomize task order and initial state; blind evaluation (the verifier asserts automatically).
 
 ---
 
-## 5. 时间计划
+## 5. Timeline
 
-见 `03-甘特图.svg`。12 周，7 条工作流并行：
+See [`assets/roadmap-gantt.svg`](assets/roadmap-gantt.svg). 12 weeks, 7 workstreams in parallel:
 
-| 周 | 里程碑 |
+| Week | Milestone |
 |---|---|
-| W1–2 | 基线与环境就绪，B1/B2 跑通，基线 TSR 表 |
-| W3–4 | 机械平台装配 + 视觉标定，tap 精度 ±0.3mm |
-| W5–6 | HID 通道 + 视觉伺服收敛 |
-| W7–8 | 仲裁器 + 闭环验证 + 失败恢复 |
-| W9–10 | 60 任务集跑完，5 组对照 |
-| W11 | 消融实验 + 力判别器训练 |
-| W12 | 论文/报告 + 复现包（代码、BOM、标定脚本、数据） |
+| W1–2 | baseline and environment ready, B1/B2 running, baseline TSR table |
+| W3–4 | mechanical platform assembly + visual calibration, tap accuracy ±0.3mm |
+| W5–6 | HID channel + visual servoing convergence |
+| W7–8 | arbiter + closed-loop verification + recovery |
+| W9–10 | 60-task suite completed, 5 control groups |
+| W11 | ablation experiments + force classifier training |
+| W12 | paper/report + reproduction package (code, BOM, calibration scripts, data) |
 
 ---
 
-## 6. 风险与预案
+## 6. Risks and contingencies
 
-| 风险 | 概率 | 影响 | 预案 |
+| Risk | Probability | Impact | Contingency |
 |---|---|---|---|
-| VLM grounding 错误主导失败 | 高 | 混淆 RQ1 结论 | 用人工标注子集分离"决策错"与"执行错" |
-| 机械标定漂移 | 中 | 长跑任务失败 | 每 30 分钟自动校验一个基准点，超阈值重标 |
-| BLE 断连 | 中 | 数据缺失 | 心跳 + 自动重连 + 失败样本标记 |
-| 屏幕反光/亮度过低 | 中 | 视觉不稳 | 固定补光 + 固定曝光 + 偏振片 |
-| 时间不足 | 中 | 实验不完整 | 任务集降为 30（每类 6），保留 C5 |
-| 伦理审查 | 低 | 无法发表 | 只用开源 App/自建 App，附伦理说明 |
+| VLM grounding errors dominate failures | High | Confounds the RQ1 conclusion | Use a manually annotated subset to separate "decision errors" from "execution errors" |
+| Mechanical calibration drift | Medium | Long-running tasks fail | Automatically check one reference point every 30 minutes and recalibrate when it exceeds the threshold |
+| BLE disconnection | Medium | Missing data | Heartbeat + automatic reconnection + marking of failed samples |
+| Screen glare/insufficient brightness | Medium | Unstable vision | Fixed fill light + fixed exposure + polarizing filter |
+| Insufficient time | Medium | Incomplete experiments | Reduce the task suite to 30 (6 per category), keeping C5 |
+| Ethics review | Low | Cannot publish | Use only open-source Apps/self-built Apps, with an ethics statement attached |
 
 ---
 
-## 7. 预期贡献
+## 7. Expected contributions
 
-1. **一套真机在环的具身 GUI Agent 平台**（硬件设计 + 开源代码 + 标定流程）；
-2. **力-视觉闭环的点击判定方法**与公开数据集（力信号 + 截图 + 标签）；
-3. **执行器仲裁策略**及其实证结论（何时该用物理、何时不用）；
-4. **60 任务、5 组对照的评测协议**，可被后续工作复用；
-5. 对"物理执行是否必要"这一问题的定量回答。
+1. **A real-device-in-the-loop embodied GUI Agent platform** (hardware design + open-source code + calibration procedure);
+2. **A tap-decision method based on the force-vision closed loop** and a public dataset (force signals + screenshots + labels);
+3. **An effector arbitration policy** and its empirical conclusions (when to use physical execution and when not to);
+4. **An evaluation protocol with 60 tasks and 5 control groups** that later work can reuse;
+5. A quantitative answer to the question "whether physical execution is necessary".
 
 ---
 
-## 8. 交付物清单
+## 8. Deliverable list
 
-| 编号 | 文件 | 内容 |
+| No. | File | Content |
 |---|---|---|
-| 01 | 研究方案书.md | 本文 |
-| 02 | 系统架构.svg | 四层架构、信号流、坐标系 |
-| 03 | 甘特图.svg | 12 周计划 |
-| 04 | BOM采购清单.csv | 机械/电控/HID/传感/视觉 |
-| 05 | 调度器与标定.md | 状态机、仲裁伪代码、标定与视觉伺服 |
-| 06 | 评测协议与指标.md | 任务模板、断言、日志 schema、统计 |
-| 07 | 相关工作综述.md | 三条脉络与空白点 |
+| 1 | [`research-proposal.md`](research-proposal.md) | this document |
+| 2 | [`assets/system-architecture.svg`](assets/system-architecture.svg) | four-layer architecture, signal flow, coordinate systems |
+| 3 | [`assets/roadmap-gantt.svg`](assets/roadmap-gantt.svg) | 12-week plan |
+| 4 | [`hardware/BOM.csv`](../hardware/BOM.csv) | mechanical / electrical / HID / sensing / vision |
+| 5 | [`scheduler-and-calibration.md`](scheduler-and-calibration.md) | state machine, arbitration pseudocode, calibration, visual servoing |
+| 6 | [`evaluation-protocol.md`](evaluation-protocol.md) | task templates, assertions, log schema, statistics |
+| 7 | [`related-work.md`](related-work.md) | five threads and the gaps |
+
+Every file also exists in Simplified Chinese as `*.zh-CN.md` / `*.zh-CN.svg`.

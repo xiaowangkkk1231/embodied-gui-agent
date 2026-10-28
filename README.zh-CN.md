@@ -2,7 +2,7 @@
 
 **用物理机械臂在真机上操作手机的视觉 + 大模型智能体，带力-视觉闭环反馈。**
 
-[![status](https://img.shields.io/badge/status-design%20phase-yellow)](docs/research-proposal.md)
+[![status](https://img.shields.io/badge/status-design%20phase-yellow)](docs/research-proposal.zh-CN.md)
 [![license](https://img.shields.io/badge/license-MIT%20%2B%20CC--BY--4.0-blue)](LICENSE)
 [![使用 DeepSeek Harness 构建](https://img.shields.io/badge/%E4%BD%BF%E7%94%A8-DeepSeek%20Harness-4D6BFE?logo=deepseek&logoColor=white&style=flat-square)](#使用-deepseek-harness-构建)
 [![assets](https://github.com/xiaowangkkk1231/embodied-gui-agent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/xiaowangkkk1231/embodied-gui-agent/actions/workflows/ci.yml)
@@ -45,7 +45,7 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 ![系统架构](docs/assets/system-architecture.zh-CN.svg)
 
 涉及三套坐标系（像素 → 机械毫米 → HID 相对位移）。HID 没有绝对坐标，用**屏幕上光标箭头的
-视觉伺服**闭环驱动。细节见 [`docs/scheduler-and-calibration.md`](docs/scheduler-and-calibration.md)。
+视觉伺服**闭环驱动。细节见 [`docs/scheduler-and-calibration.zh-CN.md`](docs/scheduler-and-calibration.zh-CN.md)。
 
 结构三视图与点击头细节：
 
@@ -75,6 +75,8 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 ├─ CITATION.cff                     引用元数据（"Cite this repository"）
 └─ .github/                         CI 工作流、Issue/PR 模板
 ```
+
+`docs/` 下每份文档都有两个版本：`foo.md` 为英文、`foo.zh-CN.md` 为简体中文；插图遵循同一规则。
 
 ## 硬件概览
 
@@ -116,7 +118,7 @@ ADB、无障碍服务、`uiautomator`。这条路恰好会在最需要它的地�
 | [OptoFidelity TouchRobot](https://optofidelity.com/en/touch-and-hmi-testing) | 商用手眼一体触控/HMI 测试机器人，带力控 | 物理触控**且**有力控 | 是测“设备质量”的工业设备，不是通用智能体的执行器 |
 | AppAgent / Mobile-Agent / AutoGLM | 纯软件注入驱动手机的 VLM 智能体 | 任务集、定位方法 | 完全不接触设备——它们是本文的**基线**，不是竞品 |
 
-空白点：上述机械装置没有一个把**接触力**接入闭环，也没有一个接上 **VLM 智能体**；更没有一个给出跨执行通道的可比基准。文献侧见 [`docs/related-work.md`](docs/related-work.md)。
+空白点：上述机械装置没有一个把**接触力**接入闭环，也没有一个接上 **VLM 智能体**；更没有一个给出跨执行通道的可比基准。文献侧见 [`docs/related-work.zh-CN.md`](docs/related-work.zh-CN.md)。
 
 ## 适用范围 / 不适用范围
 

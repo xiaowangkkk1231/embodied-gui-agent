@@ -1,82 +1,84 @@
-# 相关工作综述：定位本文的空白点
+# Related Work: Locating the Gap This Paper Addresses
 
-> 按"智能体 / 评测 / 机器人化测试 / 输入子系统 / 力觉"五条线梳理，最后一节给出本文的差异化位置。
-> 注：引用以**作者-机构-年份 + 关键词**形式给出，正式投稿前请补全 DOI/arXiv 号并核对版本。
+> English | [简体中文](related-work.zh-CN.md)
+
+> Organized around five threads — agents / evaluation / robotic testing / input subsystem / force sensing — with the final section giving this paper's differentiated position.
+> Note: citations are given as **author–institution–year + keywords**; complete the DOI/arXiv numbers and verify versions before formal submission.
 
 ---
 
-## 1. GUI 智能体（Agent 侧）
+## 1. GUI Agents (Agent Side)
 
-| 工作 | 核心做法 | 对本研究的启示 |
+| Work | Core approach | Implication for this study |
 |---|---|---|
-| **AppAgent**（Tencent, 2023） | 用截图的元素标注 + LLM 生成"文档式"操作知识，再据此逐步操作 App | 证明 VLM 可以在无 DOM 的手机上做 grounding；但其执行完全依赖 ADB/无障碍 |
-| **Mobile-Agent**（Alibaba, 2024） | 多智能体分工：规划、感知、反思、执行；纯视觉 | 视觉路线可行；同样未解决注入通道被屏蔽的问题 |
-| **Mobile-Agent-v2** | 加入多智能体协作与长任务记忆 | 长任务需要"页面栈 + 失败回退"，与本文的状态机设计一致 |
-| **AutoGLM**（Zhipu, 2024） | 端到端手机操作智能体，强调通用性 | 说明"通用手机 Agent"已进入工程化阶段，执行层成为瓶颈 |
-| **DigiRL**（2024） | 用强化学习在真机/模拟器上训练移动端 Agent | RL 训练需要大量真机交互，物理平台可提供**不会被屏蔽**的交互通道 |
+| **AppAgent** (Tencent, 2023) | Element annotation on screenshots + LLM generating "document-style" operation knowledge, then operating the App step by step from it | Proves that VLMs can do grounding on phones without a DOM; but its execution relies entirely on ADB/accessibility |
+| **Mobile-Agent** (Alibaba, 2024) | Multi-agent division of labor: planning, perception, reflection, execution; pure vision | The vision route is viable; it likewise does not solve the problem of injection channels being blocked |
+| **Mobile-Agent-v2** | Adds multi-agent collaboration and long-task memory | Long tasks require a "page stack + failure rollback", consistent with this paper's state machine design |
+| **AutoGLM** (Zhipu, 2024) | End-to-end phone-operation agent, emphasizing generality | Shows that "general phone agents" have entered the engineering stage, and the execution layer has become the bottleneck |
+| **DigiRL** (2024) | Trains mobile agents on real devices/simulators with reinforcement learning | RL training requires large amounts of real-device interaction; a physical platform can provide an interaction channel that **is not blocked** |
 
-**共同点**：动作输出统一抽象为 `click/type/swipe`，由系统注入通道执行。**没有工作把"执行器"当成研究对象**——这是本文的切入点。
+**Commonality**: action output is uniformly abstracted as `click/type/swipe` and executed by the system injection channel. **No work treats the "executor" as an object of study** — this is this paper's entry point.
 
-## 2. 数据集与评测
+## 2. Datasets and Evaluation
 
-| 资源 | 内容 | 与本文关系 |
+| Resource | Content | Relation to this paper |
 |---|---|---|
-| **AITW**（Android in the Wild, Google, 2023） | 大规模真机操作轨迹（含截图 + 动作） | 可用来评估决策层；但动作是 ADB 注入的，不含执行层差异 |
-| **AndroidControl**（Google, 2024） | 指令-轨迹对，覆盖高低层任务 | 同上 |
-| **ScreenSpot**（2024，随 SeeClick 提出） | GUI 元素定位基准 | 用于衡量 grounding 能力，是本文的**混淆变量**——必须控制 |
-| **AndroidWorld**（Google, 2024） | 可交互的 Android 任务环境 | 可作为本文任务集的参考模板 |
-| **Mind2Web / WebArena**（2023） | Web 侧 Agent 基准 | 方法论借鉴（成功断言、随机化） |
+| **AITW** (Android in the Wild, Google, 2023) | Large-scale real-device operation trajectories (with screenshots + actions) | Can be used to evaluate the decision layer; but the actions are injected via ADB and contain no execution-layer differences |
+| **AndroidControl** (Google, 2024) | Instruction–trajectory pairs, covering high- and low-level tasks | Same as above |
+| **ScreenSpot** (2024, introduced with SeeClick) | GUI element localization benchmark | Used to measure grounding capability; it is a **confounding variable** for this paper — it must be controlled |
+| **AndroidWorld** (Google, 2024) | Interactive Android task environment | Can serve as a reference template for this paper's task suite |
+| **Mind2Web / WebArena** (2023) | Web-side agent benchmarks | Methodological borrowing (success assertions, randomization) |
 
-**空白**：上述基准都在**软件层**执行动作，评测结论对"物理执行"不可迁移。**缺一个"执行器对比"的真机基准。**
+**Gap**: the benchmarks above execute actions at the **software layer**, and their evaluation conclusions do not transfer to "physical execution". **There is no real-device benchmark for "executor comparison".**
 
-## 3. 机器人化 UI 测试（硬件侧）
+## 3. Robotic UI Testing (Hardware Side)
 
-| 项目 | 形态 | 可借鉴处 |
+| Project | Form | What can be borrowed |
 |---|---|---|
-| **Tapster**（开源，GitHub `tapsterbot`，310★） | 3D 打印并联/CoreXY 机械臂 + 电容笔，配合 Appium 点手机 | 结构、触头、标定思路的**最直接参考**；但它是"固定坐标脚本"，无智能体、无力反馈 |
-| **FlexArm**（开源，GitHub `hamlet0168/FlexArm`，3★） | 机械臂 + 摄像头角点标定 + YAML 脚本编排，图标/文字识别点击，Windows 桌面工具 | 与本文目标**最接近的成品**；证明"标定+脚本+识别"可行。但开环、无力通道、无基准协议，发布物为二进制包 |
-| **iPhone-Ian**（开源，GitHub `mchdeore/iPhone-Ian`） | 视觉智能体驱动的物理装置点击 iPhone | 问题陈述几乎相同；可作为"最小可行装置"参考。仅 iPhone、无度量层 |
-| **Tappy**（TestDevLab，2017） | Tapster 的工业内部分支，用于自家设备测试 | 说明该形态已进入企业测试流程；同样是开环脚本 |
-| **OptoFidelity TouchRobot**（工业级） | 多轴机械臂 + 光学对准 + 力控，用于触控/HMI 性能测试 | 说明"物理触控 + 力控"在工业上成熟；但其是**测试设备**，不面向通用任务 |
-| 学术界的**机器人化移动测试** | 用机械装置做按压耐久、跌落、触控可靠性测试；近年出现"机器人测移动 App GUI"的系列工作（如 *Automated Testing of Mobile Applications Using a Robotic Arm*, 2020） | 提供了力控与安全设计经验、GUI 识别方法；但目标是**测设备/测 App**，不是"用设备完成任务" |
+| **Tapster** (open source, GitHub `tapsterbot`, 310★) | 3D-printed parallel/CoreXY arm + capacitive stylus, tapping the phone together with Appium | The **most direct reference** for structure, stylus, and calibration ideas; but it is a "fixed-coordinate script" with no agent and no force feedback |
+| **FlexArm** (open source, GitHub `hamlet0168/FlexArm`, 3★) | Robotic arm + camera corner calibration + YAML script orchestration, icon/text recognition and clicking, Windows desktop tool | The **closest finished product** to this paper's goal; proves that "calibration + script + recognition" is feasible. But it is open-loop, has no force channel, has no benchmark protocol, and ships as a binary package |
+| **iPhone-Ian** (open source, GitHub `mchdeore/iPhone-Ian`) | A physical device driven by a vision agent to tap an iPhone | The problem statement is almost identical; usable as a "minimal viable device" reference. iPhone only, no measurement layer |
+| **Tappy** (TestDevLab, 2017) | Tapster's industrial in-house branch, used for the company's own device testing | Shows that this form factor has entered enterprise test flows; it is likewise an open-loop script |
+| **OptoFidelity TouchRobot** (industrial grade) | Multi-axis arm + optical alignment + force control, for touch/HMI performance testing | Shows that "physical touch + force control" is mature in industry; but it is **test equipment** and does not target general tasks |
+| Academic **robotic mobile testing** | Uses mechanical devices for press endurance, drop, and touch reliability testing; recent years have seen a series of works on "robots testing mobile App GUIs" (e.g., *Automated Testing of Mobile Applications Using a Robotic Arm*, 2020) | Provides experience in force control and safety design, plus GUI recognition methods; but the goal is to **test devices / test Apps**, not to "use a device to complete tasks" |
 
-**空白**：现有机器人平台都是**开环脚本或专用测试**，没有人把它接到一个**闭环的通用 GUI 智能体**上；也没有人把**接触力**当作"动作已生效"的反馈信号；亦无人量化"物理执行 vs 软件执行"对任务成功率的影响。
+**Gap**: existing robotic platforms are all **open-loop scripts or dedicated testing**; no one connects one to a **closed-loop general GUI agent**; no one treats **contact force** as a feedback signal for "the action has taken effect"; and no one quantifies the impact of "physical execution vs software execution" on task success rate.
 
-## 4. 输入子系统（机制侧）
+## 4. Input Subsystem (Mechanism Side)
 
-- **Android 输入栈**：`InputManagerService` → `InputReader`/`InputDispatcher` → `View.dispatchTouchEvent`；`MotionEvent` 携带 `source`（`SOURCE_TOUCHSCREEN` / `SOURCE_MOUSE`）与 `toolType`（`TOOL_TYPE_FINGER` / `TOOL_TYPE_MOUSE`），`InputDevice` 可查询是否为外部设备。
-- **HID 协议**：USB HID / 蓝牙 HID（BR/EDR HID Profile）与 BLE HID（**HOGP**，HID over GATT Profile，Bluetooth SIG 规范）；报告描述符（Report Descriptor）决定设备被识别为鼠标、键盘、digitizer 还是手柄。
-- **注入通道**：`adb shell input`、`AccessibilityService.dispatchGesture`、`uiautomator`。
+- **Android input stack**: `InputManagerService` → `InputReader`/`InputDispatcher` → `View.dispatchTouchEvent`; `MotionEvent` carries `source` (`SOURCE_TOUCHSCREEN` / `SOURCE_MOUSE`) and `toolType` (`TOOL_TYPE_FINGER` / `TOOL_TYPE_MOUSE`), and `InputDevice` can be queried for whether it is an external device.
+- **HID protocol**: USB HID / Bluetooth HID (BR/EDR HID Profile) and BLE HID (**HOGP**, HID over GATT Profile, Bluetooth SIG specification); the report descriptor determines whether the device is recognized as a mouse, keyboard, digitizer, or gamepad.
+- **Injection channels**: `adb shell input`, `AccessibilityService.dispatchGesture`, `uiautomator`.
 
-**空白**：输入语义差异（手指 vs 鼠标 vs 注入）在**安全/风控**领域讨论很多，但在 **Agent 研究**里几乎没人把它当作"可执行性"变量来分析。本文把"输入语义"提升为实验变量。
+**Gap**: input-semantic differences (finger vs mouse vs injection) are much discussed in **security/risk control**, but in **agent research** almost no one analyzes them as an "executability" variable. This paper elevates "input semantics" to an experimental variable.
 
-## 5. 力觉与触觉
+## 5. Force Sensing and Touch
 
-| 方向 | 代表 | 可借鉴 |
+| Direction | Representative | What can be borrowed |
 |---|---|---|
-| 视触觉传感 | **GelSight** 系列（2017–） | 高分辨率接触形变测量；本文用低成本 FSR 即可，精度要求低一个量级 |
-| 力/阻抗控制 | 协作机器人的力控与柔顺控制 | 限力、恒力接触、碰撞检测的实现方式 |
-| 触屏交互研究 | HCI 中的按压/力输入 | "多大力度算一次点击"的经验值；本文的 2N 限力与 80–120ms 保持时长参考此类结论 |
+| Visuotactile sensing | **GelSight** series (2017–) | High-resolution contact deformation measurement; this paper only needs a low-cost FSR, with a precision requirement an order of magnitude lower |
+| Force/impedance control | Force control and compliant control in collaborative robots | Implementation approaches for force limiting, constant-force contact, and collision detection |
+| Touchscreen interaction research | Press/force input in HCI | Empirical values for "how much force counts as one tap"; this paper's 2N force limit and 80–120ms hold duration reference such conclusions |
 
-**空白**：力信号在 HCI 里用于**人输入**，在机器人里用于**操作物体**，但**没有被用作 GUI 智能体的"动作已生效"反馈信号**——这是本文 RQ2 的新意。
+**Gap**: force signals are used in HCI for **human input** and in robotics for **manipulating objects**, but **have not been used as an "action has taken effect" feedback signal for GUI agents** — this is the novelty of this paper's RQ2.
 
-## 6. 本文的位置（差异化）
+## 6. This Paper's Position (Differentiation)
 
-| 维度 | 已有工作 | 本文 |
+| Dimension | Existing work | This paper |
 |---|---|---|
-| 执行方式 | 软件注入为主 | **物理执行 + HID + 注入三通道可比** |
-| 反馈 | 截图（视觉） | **视觉 + 接触力双通道** |
-| 执行器选择 | 固定实现 | **按任务/元素在线仲裁** |
-| 标定 | 一次性人工 | **在线自校验 + 跨机型重标定** |
-| 评测 | 软件层基准 | **真机在环、60 任务、5 组对照的执行器基准** |
-| 应用 | 通用操作 | 通用操作 + 无障碍 + 自动化测试 |
+| Execution mode | Mainly software injection | **Three comparable channels: physical execution + HID + injection** |
+| Feedback | Screenshot (vision) | **Vision + contact force, two channels** |
+| Executor selection | Fixed implementation | **Online arbitration by task/element** |
+| Calibration | One-time manual | **Online self-verification + cross-device-model recalibration** |
+| Evaluation | Software-layer benchmark | **Real-device in-the-loop executor benchmark with 60 tasks and 5 control groups** |
+| Application | General operation | General operation + accessibility + automated testing |
 
-## 7. 建议的引用顺序（写作时）
+## 7. Suggested Citation Order (When Writing)
 
-1. 引子：手机 Agent 的爆发（AppAgent / Mobile-Agent / AutoGLM）
-2. 问题：执行通道的失效边界（安全键盘、DRM、只认触摸的控件）
-3. 已有方案：软件注入的局限 → 机器人化测试的局限
-4. 机制：输入语义（source/toolType/HID 描述符）
-5. 方法：本文的三通道 + 力闭环 + 仲裁
-6. 实验：60 任务基准
-7. 讨论：负结果也有价值（若物理执行无优势 → 瓶颈在决策层）
+1. Hook: the explosion of phone agents (AppAgent / Mobile-Agent / AutoGLM)
+2. Problem: the failure boundary of execution channels (secure keyboard, DRM, controls that recognize only touch)
+3. Existing approaches: the limits of software injection → the limits of robotic testing
+4. Mechanism: input semantics (source/toolType/HID descriptor)
+5. Method: this paper's three channels + force closed loop + arbitration
+6. Experiments: 60-task benchmark
+7. Discussion: negative results are also valuable (if physical execution shows no advantage → the bottleneck lies in the decision layer)

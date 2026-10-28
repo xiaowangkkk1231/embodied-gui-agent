@@ -1,10 +1,12 @@
-# 调度器、仲裁与标定（工程实现说明）
+# Scheduler, Arbitration, and Calibration (Engineering Implementation Notes)
 
-> 配套 01 方案书、02 架构图。本文给的是**可直接落地的伪代码与公式**，语言无关（示例用 Python 风格）。
+> English | [简体中文](scheduler-and-calibration.zh-CN.md)
+
+> Companion to the 01 proposal and the 02 architecture diagram. This document gives **directly implementable pseudocode and formulas**, language-agnostic (examples in Python style).
 
 ---
 
-## 1. 主状态机
+## 1. Main State Machine
 
 ```
                   ┌──────────────────────────────────────────┐
@@ -18,32 +20,32 @@
                      └──────────┘    └────────┘
                           │
                      ┌────▼────┐
-                     │  ABORT  │  ← 安全监视触发（超力 / 急停 / 连续失败）
+                     │  ABORT  │  ← safety monitor triggered (excess force / emergency stop / consecutive failures)
                      └─────────┘
 ```
 
-| 状态 | 进入条件 | 退出条件 | 超时 |
+| State | Entry condition | Exit condition | Timeout |
 |---|---|---|---|
-| IDLE | 任务开始 / 上一步成功 | 有未完成子目标 | — |
-| OBSERVE | 任一动作后 | 截图 + 力信号窗口落盘 | 1.0 s |
-| GROUND | 有截图 | 拿到 ≥1 个候选元素 | 2.0 s |
-| DECIDE | 有候选 | 产出 `Action` | 1.5 s |
-| ACT | 有 Action | 执行器回报完成 | 2.0 s |
-| VERIFY | 动作完成 | success / fail 判决 | 1.0 s |
-| RECOVER | 判决 fail | 重试或换执行器 | 3 次 |
-| ABORT | 安全阈值 | 人工介入 | — |
+| IDLE | Task start / previous step succeeded | An unfinished subgoal exists | — |
+| OBSERVE | After any action | Screenshot + force-signal window persisted to disk | 1.0 s |
+| GROUND | A screenshot is available | ≥1 candidate element obtained | 2.0 s |
+| DECIDE | Candidates are available | `Action` produced | 1.5 s |
+| ACT | An Action is available | Effector reports completion | 2.0 s |
+| VERIFY | Action completed | success / fail verdict | 1.0 s |
+| RECOVER | Verdict is fail | Retry or switch effector | 3 times |
+| ABORT | Safety threshold | Manual intervention | — |
 
-**硬约束**：单个任务最长步数（默认 20）、最长墙钟（默认 120s）、连续失败 3 次即 ABORT。
+**Hard constraints**: maximum steps for a single task (default 20), maximum wall-clock time (default 120s), 3 consecutive failures trigger ABORT.
 
 ---
 
-## 2. 动作原语接口
+## 2. Action Primitive Interface
 
 ```python
 @dataclass
 class Action:
     kind: str            # key | type | scroll | tap | long_press | swipe | drag
-    params: dict         # 见下表
+    params: dict         # see the table below
     target: Optional[BBox] = None
     hint: Optional[str] = None   # "hid" | "mech" | None
     timeout_ms: int = 2000
@@ -52,95 +54,95 @@ class Action:
 class BBox:
     x: int; y: int; w: int; h: int
     label: str
-    responds_to_mouse: bool = True   # 由历史成功率估计，而非静态声明
+    responds_to_mouse: bool = True   # estimated from historical success rate, not statically declared
 ```
 
-| kind | params | 首选执行器 | 备注 |
+| kind | params | Preferred effector | Notes |
 |---|---|---|---|
-| `key` | `code`（BACK/HOME/APP_SWITCH/ENTER） | HID | 系统键码，零定位 |
-| `type` | `text` | HID | 中文需配合输入法/剪贴板 |
-| `scroll` | `dy`（像素或档位） | HID | 滚轮；列表页最稳 |
-| `tap` | `x,y` | 机械 | 目标 `responds_to_mouse=False` 时强制机械 |
-| `long_press` | `x,y,ms` | 机械 | 建议 800ms |
-| `swipe` | `points[], ms` | HID（拖拽） | 机械需轨迹规划，优先 HID |
-| `drag` | `from,to,ms` | 机械 | 排序类拖拽 |
+| `key` | `code` (BACK/HOME/APP_SWITCH/ENTER) | HID | System keycode, no localization |
+| `type` | `text` | HID | Chinese requires an input method / clipboard |
+| `scroll` | `dy` (pixels or notches) | HID | Wheel; most stable on list pages |
+| `tap` | `x,y` | Mechanical | Forced to mechanical when the target has `responds_to_mouse=False` |
+| `long_press` | `x,y,ms` | Mechanical | 800ms recommended |
+| `swipe` | `points[], ms` | HID (drag) | Mechanical requires trajectory planning; prefer HID |
+| `drag` | `from,to,ms` | Mechanical | Reordering drags |
 
 ---
 
-## 3. 仲裁器
+## 3. Arbiter
 
-目标：在**成功率**与**延迟**之间取帕累托最优。
+Goal: take the Pareto optimum between **success rate** and **latency**.
 
 ```python
 def choose_effector(a: Action, ctx) -> str:
-    # 1) 硬规则：能力不匹配直接排除
+    # 1) Hard rules: exclude directly when the capability does not match
     if a.kind in ("key", "type", "scroll"):
         return "hid"
     if a.kind in ("tap", "long_press"):
         if ctx.target and not ctx.target.responds_to_mouse:
             return "mech"
         if ctx.mech_busy and ctx.hid_ok:
-            return "hid"          # 退化为视觉伺服点击
+            return "hid"          # degrade to a visual-servoing click
         if ctx.recent_mech_fail >= 2 and ctx.hid_ok:
             return "hid"
-        return "mech"             # 默认：真触摸更通用
+        return "mech"             # default: a real touch is more general
     if a.kind in ("swipe", "drag"):
         return "hid" if a.kind == "swipe" else "mech"
     return "mech"
 
-# 软化版本：用在线估计的成功率/延迟做加权打分
+# Softened version: weighted scoring with online-estimated success rate / latency
 # score(e) = w1 * P_success(e, kind) + w2 * P_success(e, target_label)
 #            - w3 * E[latency(e)] - w4 * busy_penalty(e)
-# 权重初始 (1.0, 0.6, 0.004/ms, 0.3)，按任务族各训一组
+# Initial weights (1.0, 0.6, 0.004/ms, 0.3), one set trained per task family
 ```
 
-**在线更新**：每次动作后按 (kind, target_label, effector) 维护 Beta 后验，`P_success = α/(α+β)`，滑动窗口 200 次。
+**Online update**: after each action, maintain a Beta posterior keyed by (kind, target_label, effector), `P_success = α/(α+β)`, sliding window of 200.
 
 ---
 
-## 4. 动作后验证（VERIFY）
+## 4. Post-Action Verification (VERIFY)
 
 ```python
 def verify(before, after, expect) -> Verdict:
-    if expect.assert_dsl:                 # 结构化断言优先
+    if expect.assert_dsl:                 # structured assertions take priority
         return run_assert(expect.assert_dsl, after)
-    sim = ssim(before.roi, after.roi)     # 结构相似度兜底
+    sim = ssim(before.roi, after.roi)     # structural similarity as fallback
     if sim > 0.98:  return Verdict(False, "no_change")
     if sim < 0.60:  return Verdict(True,  "page_changed")
     return Verdict(True, "element_present") if expect.element in after.elements else Verdict(False, "uncertain")
 ```
 
-**失败归因**（写入日志，供分析用）：
+**Failure attribution** (written to the log, for analysis):
 
-| 标签 | 判据 |
+| Label | Criterion |
 |---|---|
-| `decision_error` | grounding 的框与人工标注 IoU < 0.5 |
-| `execution_error` | 框正确但点击后无变化，且力信号显示接触异常 |
-| `perception_error` | 截图模糊/遮挡/反光，元素未被检出 |
-| `env_error` | 网络、弹窗、权限等外部中断 |
-| `unsupported` | 需要多点/手势，硬件不支持 |
+| `decision_error` | The box from grounding has IoU < 0.5 with the manual annotation |
+| `execution_error` | The box is correct but nothing changes after the click, and the force signal shows abnormal contact |
+| `perception_error` | The screenshot is blurred / occluded / reflecting, and the element is not detected |
+| `env_error` | External interruptions such as network, pop-up, or permission |
+| `unsupported` | Requires multi-point / gestures, which the hardware does not support |
 
 ---
 
-## 5. 标定
+## 5. Calibration
 
-### 5.1 相机内参（离线，一次）
+### 5.1 Camera Intrinsics (Offline, Once)
 
 ```python
 import cv2, numpy as np
-# 棋盘格 9x6 内角点，边长 20mm；采 15 张不同姿态
+# 9x6 checkerboard inner corners, 20mm side length; capture 15 poses
 ret, K, dist, _, _ = cv2.calibrateCamera(objp, imgp, gray.shape[::-1], None, None)
-# 重投影误差目标 < 0.3 px
+# target reprojection error < 0.3 px
 ```
 
-### 5.2 像素 → 机械坐标（单应矩阵 H）
+### 5.2 Pixel → Mechanical Coordinates (Homography H)
 
 ```python
 def calibrate_homography(pairs):          # pairs: [(u,v), (X_mm, Y_mm)]
     src = np.float32([p[0] for p in pairs])
     dst = np.float32([p[1] for p in pairs])
     H, mask = cv2.findHomography(src, dst, cv2.RANSAC, 3.0)
-    err = rms_reprojection(H, src, dst)   # 目标 ≤ 0.5 mm
+    err = rms_reprojection(H, src, dst)   # target ≤ 0.5 mm
     return H, err
 
 def px_to_mm(H, u, v):
@@ -148,67 +150,67 @@ def px_to_mm(H, u, v):
     return p[0]/p[2], p[1]/p[2]
 ```
 
-**取点方式**：手动示教 4–9 点（触头在屏幕上点出的实际位置），或屏幕显示已知间距的十字阵列自动采集。
+**How points are collected**: manual teaching of 4–9 points (the actual positions where the stylus taps on the screen), or automatic collection from a cross array with a known spacing displayed on the screen.
 
-### 5.3 触头偏置（tool offset）
+### 5.3 Stylus Offset (tool offset)
 
 ```python
-# 触头点一下屏幕上的基准点 P，记录机械坐标 (Xm, Ym)
-# 相机在该点看到像素 (u, v) → 映射得 (Xc, Yc)
-offset = (Xm - Xc, Ym - Yc)      # 之后所有视觉目标都要减去它
+# The stylus taps reference point P on the screen once; record the mechanical coordinates (Xm, Ym)
+# The camera sees pixel (u, v) at that point → the mapping gives (Xc, Yc)
+offset = (Xm - Xc, Ym - Yc)      # subtract it from all subsequent visual targets
 ```
 
-### 5.4 HID 视觉伺服（解决"相对坐标"问题）
+### 5.4 HID Visual Servoing (Solving the "Relative Coordinates" Problem)
 
-Android 会把鼠标箭头画在屏幕上，因此可以闭环：
+Android draws the mouse cursor on the screen, so a closed loop is possible:
 
 ```python
 def hid_move_to(u_t, v_t, iters=4, tol=3):
     for _ in range(iters):
         img = grab()
-        (u_c, v_c) = detect_cursor(img)          # 模板匹配光标箭头
+        (u_c, v_c) = detect_cursor(img)          # template-match the cursor arrow
         du, dv = u_t - u_c, v_t - v_c
         if abs(du) <= tol and abs(dv) <= tol:
             return True
-        hid.move(dx=gain*du, dy=gain*dv, steps=1) # gain 初值 0.8，按收敛情况调
+        hid.move(dx=gain*du, dy=gain*dv, steps=1) # initial gain 0.8, tuned by convergence
         sleep(0.06)
     return False
 ```
 
-> 若机型不渲染鼠标光标（部分定制 ROM），退化为"屏幕四角回零 + 固定步长"的开环方案，需在任务集里单独标注。
+> If a model does not render the mouse cursor (some custom ROMs), degrade to the open-loop scheme of "return to zero at the four screen corners + fixed step length"; this must be annotated separately in the task suite.
 
-### 5.5 在线校验与重标定
+### 5.5 Online Check and Recalibration
 
 ```python
 def auto_check():
-    # 每 30 分钟：机械去基准点 1、2、3 各点一次，读力信号 + 截图确认
+    # Every 30 minutes: the mechanical effector taps baseline points 1, 2, 3 once each, reading the force signal + screenshot to confirm
     errs = [compare(expected, actual) for expected, actual in baseline_points]
     if max(errs) > 0.5:          # mm
-        recalibrate()            # 重跑 5.2 + 5.3，约 5–10 min
+        recalibrate()            # re-run 5.2 + 5.3, about 5–10 min
 ```
 
-### 5.6 换机型复用
+### 5.6 Reuse Across Device Models
 
-1. 夹具用**定位销 + 可调挡边**，保证手机左/下边对齐同一基准；
-2. 用屏幕尺寸检测（分辨率 + 边框识别）自动换算显示区域；
-3. 只需重采 4 个点即可重算 H——目标 **≤10 min**。
+1. The fixture uses **locating pins + adjustable stop edges**, ensuring the left/bottom edges of the phone align to the same datum;
+2. Detect the screen size (resolution + bezel detection) to convert the display area automatically;
+3. Recomputing H only requires re-collecting 4 points — target **≤10 min**.
 
 ---
 
-## 6. 安全
+## 6. Safety
 
-| 项 | 阈值 / 策略 |
+| Item | Threshold / Policy |
 |---|---|
-| 触头最大接触力 | 2 N（FSR 标定后闭环限幅） |
-| 单次下压时长 | ≤ 200 ms |
-| 电磁铁占空比 | ≤ 20%（防过热） |
-| 机械越界 | 软限位 + 硬限位各一层 |
-| 急停 | 物理常闭按钮，切断 12V |
-| 看门狗 | 主控 500 ms 无心跳 → 断电回零 |
-| 电源时序 | 先逻辑后功率；步进与 BLE 电源分开滤波 |
+| Maximum stylus contact force | 2 N (closed-loop limiting after FSR calibration) |
+| Single press-down duration | ≤ 200 ms |
+| Solenoid duty cycle | ≤ 20% (to prevent overheating) |
+| Mechanical over-travel | One layer of soft limit + one layer of hard limit |
+| Emergency stop | Physical normally-closed button, cuts 12V |
+| Watchdog | Main controller gets no heartbeat for 500 ms → power off and return to zero |
+| Power sequencing | Logic before power; stepper and BLE supplies filtered separately |
 
 ---
 
-## 7. 日志（详见 06）
+## 7. Logging (see [`evaluation-protocol.md`](evaluation-protocol.md) for details)
 
-每次动作落一行 JSON：`ts, task_id, step, state, action, target, effector, latency_ms, force_peak, force_impulse, verdict, fail_label, screenshot_before, screenshot_after`。
+Each action writes one JSON line: `ts, task_id, step, state, action, target, effector, latency_ms, force_peak, force_impulse, verdict, fail_label, screenshot_before, screenshot_after`.
