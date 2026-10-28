@@ -4,6 +4,7 @@
 
 [![status](https://img.shields.io/badge/status-design%20phase-yellow)](docs/research-proposal.zh-CN.md)
 [![license](https://img.shields.io/badge/license-MIT%20%2B%20CC--BY--4.0-blue)](LICENSE)
+[![release](https://img.shields.io/github/v/release/xiaowangkkk1231/embodied-gui-agent?style=flat-square)](https://github.com/xiaowangkkk1231/embodied-gui-agent/releases)
 [![使用 DeepSeek Harness 构建](https://img.shields.io/badge/%E4%BD%BF%E7%94%A8-DeepSeek%20Harness-4D6BFE?logo=deepseek&logoColor=white&style=flat-square)](#使用-deepseek-harness-构建)
 [![assets](https://github.com/xiaowangkkk1231/embodied-gui-agent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/xiaowangkkk1231/embodied-gui-agent/actions/workflows/ci.yml)
 

@@ -4,6 +4,7 @@
 
 [![status](https://img.shields.io/badge/status-design%20phase-yellow)](docs/research-proposal.md)
 [![license](https://img.shields.io/badge/license-MIT%20%2B%20CC--BY--4.0-blue)](LICENSE)
+[![release](https://img.shields.io/github/v/release/xiaowangkkk1231/embodied-gui-agent?style=flat-square)](https://github.com/xiaowangkkk1231/embodied-gui-agent/releases)
 [![hardware](https://img.shields.io/badge/hardware-CERN--OHL--S-green)](docs/research-proposal.md)
 [![docs](https://img.shields.io/badge/docs-4%20documents-informational)](docs/)
 [![built with DeepSeek Harness](https://img.shields.io/badge/built%20with-DeepSeek%20Harness-4D6BFE?logo=deepseek&logoColor=white&style=flat-square)](#built-with-deepseek-harness)
